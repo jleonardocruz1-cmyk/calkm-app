@@ -1,7 +1,8 @@
 {
   "name": "CalKm",
   "short_name": "CalKm",
-  "start_url": "/",
+  "start_url": "/calkm-app/",
+  "scope": "/calkm-app/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
