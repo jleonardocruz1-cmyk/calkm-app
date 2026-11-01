@@ -21,20 +21,17 @@
             <span id="regionPriceLabel">📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b></span>
         </div>
 
-        <!-- Card de Atalho Inteligente para o Google Maps -->
-        <div class="card map-card" style="text-align: center; background: linear-gradient(135deg, #f8faff 0%, #e8f0fe 100%); border: 1px solid #d0e1fd; padding: 15px;">
-            <div style="font-size: 15px; font-weight: bold; color: #0d47a1; margin-bottom: 6px;">🗺️ Navegação Integrada Google Maps</div>
-            <p style="font-size: 13px; color: #5a6b82; margin-bottom: 12px;">Preencha a origem e o destino para abrir o trajeto rodoviário oficial com um toque.</p>
-            <a id="btnOpenGoogleMaps" href="https://www.google.com/maps" target="_blank" style="display: block; width: 100%; box-sizing: border-box; text-decoration: none; background-color: #0d47a1; color: white; padding: 12px; border-radius: 10px; font-weight: bold; text-align: center;">
-                🧭 Abrir Rota Completa no Google Maps
-            </a>
-        </div>
-
         <!-- Card de Veículo Selecionado -->
         <div class="card vehicle-card">
             <div class="vehicle-header">
                 <span class="vehicle-title">🚙 Veículo Selecionado (Inmetro)</span>
             </div>
+            
+            <!-- Aviso caso o veículo não esteja na lista -->
+            <p style="font-size: 13px; color: #475569; background-color: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #0d47a1;">
+                💡 <b>Dica:</b> Caso seu veículo não esteja na lista, basta preencher diretamente a média do seu modelo no campo <b>Consumo (Km/L)</b> em <i>Valores da Viagem</i>.
+            </p>
+
             <div class="vehicle-options-box">
                 <select id="autoVehicleSelect" class="vehicle-select-native">
                     <option value="">Selecione um modelo...</option>
@@ -82,17 +79,29 @@
             </div>
         </div>
 
-        <!-- Campos de Origem e Destino com Busca Real -->
-        <div class="card">
+        <!-- Módulo Destaque: Origem / Destino -->
+        <div class="card" style="border: 1.5px solid #0d47a1;">
+            <h3 style="color: #0d47a1; margin-bottom: 12px; font-size: 16px;">📍 Origem / Destino</h3>
+            
             <div class="input-group">
                 <label>📍 Origem A (Cidade / Estado):</label>
-                <input type="text" id="origemA" value="" placeholder="Ex: Parauapebas - PA">
+                <input type="text" id="origemA" value="" placeholder="Ex: Salvador - BA">
             </div>
-            <div class="input-group">
+            
+            <div class="input-group" style="margin-top: 10px;">
                 <label>🏁 Destino B (Cidade / Estado):</label>
-                <input type="text" id="destinoB" value="" placeholder="Ex: São Paulo - SP">
+                <input type="text" id="destinoB" value="" placeholder="Ex: Feira de Santana - BA">
             </div>
-            <button id="btnGps" class="btn-secondary">📡 Usar GPS Atual como Origem</button>
+        </div>
+
+        <!-- Card de Navegação Integrada Google Maps -->
+        <div class="card map-card" style="text-align: center; background: linear-gradient(135deg, #f8faff 0%, #e8f0fe 100%); border: 1px solid #d0e1fd; padding: 15px;">
+            <div style="font-size: 15px; font-weight: bold; color: #0d47a1; margin-bottom: 6px;">🗺️ Navegação Integrada Google Maps</div>
+            <p style="font-size: 13px; color: #5a6b82; margin-bottom: 12px;">Preencha a origem e o destino para abrir o trajeto rodoviário oficial com um toque.</p>
+
+            <a id="btnOpenGoogleMaps" href="https://www.google.com/maps" target="_blank" style="display: block; width: 100%; box-sizing: border-box; text-decoration: none; background-color: #0d47a1; color: white; padding: 12px; border-radius: 10px; font-weight: bold; text-align: center;">
+                🧭 Abrir Rota Completa no Google Maps
+            </a>
         </div>
 
         <!-- Valores e Custos da Viagem -->
