@@ -102,14 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Tratamento para o botão do Google Maps verificar se há internet
-    btnOpenGoogleMaps.addEventListener('click', (e) => {
-        if (!navigator.onLine) {
-            e.preventDefault();
-            alert('Você está offline no momento. O Google Maps requer internet para traçar rotas. Por favor, insira a distância manualmente no campo correspondente.');
-        }
-    });
-
     origemInput.addEventListener('input', () => {
         atualizarLinkGoogleMaps();
         
@@ -199,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             custoTotal: totalCost
         };
 
-        // Adiciona à lista e salva permanentemente no localStorage
         travelHistory.unshift(tripRecord);
         localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
