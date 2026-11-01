@@ -42,6 +42,22 @@ const STATE_FUEL_PRICES = {
     RR: 6.45, AP: 6.20, DEFAULT: 5.95
 };
 
+// Tabela Local de Distâncias (Funciona 100% Offline)
+const LOCAL_CITY_DISTANCES = {
+    "parauapebas|maraba": 165,
+    "maraba|parauapebas": 165,
+    "parauapebas|belem": 700,
+    "belem|parauapebas": 700,
+    "parauapebas|sao luis": 780,
+    "sao luis|parauapebas": 780,
+    "salvador|feira de santana": 108,
+    "feira de santana|salvador": 108,
+    "salvador|guarajuba": 65,
+    "guarajuba|salvador": 65,
+    "belem|maraba": 550,
+    "maraba|belem": 550
+};
+
 let travelHistory = [];
 
 function parseFormattedNumber(val) {
@@ -54,29 +70,9 @@ function formatBR(val, decimals = 2) {
     return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c) * 1.25; // Fator rodoviário brasileiro
-}
-
-async function geocodeAddress(address) {
-    try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-        const data = await response.json();
-        if (data && data.length > 0) {
-            return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-        }
-    } catch (e) {
-        console.error("Erro na geocodificação:", e);
-    }
-    return null;
+function buscarDistanciaLocal(origem, destino) {
+    const key = `${origem.toLowerCase().trim()}|${destino.toLowerCase().trim()}`;
+    return LOCAL_CITY_DISTANCES[key] || null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -88,19 +84,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const regionPriceLabel = document.getElementById('regionPriceLabel');
     const btnCalculate = document.getElementById('btnCalculate');
     const btnClear = document.getElementById('btnClear');
-    const btnGps = document.getElementById('btnGps');
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
-    autoVehicleSelect.addEventListener('change', (e) => {
-        const selectedKey = e.target.value;
-        if (selectedKey && vehicleDatabase[selectedKey]) {
-            document.getElementById('kml').value = formatBR(vehicleDatabase[selectedKey], 1);
-        }
-    });
+    function atualizarLinkGoogleMaps() {
+        const origemVal = origemInput.value.trim();
+        const destinoVal = destinoInput.value.trim();
 
-    origemInput.addEventListener('input', (e) => {
-        const text = e.target.value.toUpperCase();
+        if (origemVal && destinoVal) {
+            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
+        } else {
+            btnOpenGoogleMaps.href = 'https://www.google.com/maps';
+        }
+    }
+
+    origemInput.addEventListener('input', () => {
+        atualizarLinkGoogleMaps();
+        
+        // Auto-detecta preço estimado por UF
+        const text = origemInput.value.toUpperCase();
         let foundUf = 'DEFAULT';
         Object.keys(STATE_FUEL_PRICES).forEach((uf) => {
             if (uf !== 'DEFAULT') {
@@ -113,20 +115,27 @@ document.addEventListener('DOMContentLoaded', () => {
         regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (${foundUf !== 'DEFAULT' ? 'Estado: ' + foundUf : 'Média Nacional'}): <b>R$ ${formatBR(price, 2)}</b>`;
     });
 
-    btnCalculate.addEventListener('click', async () => {
+    destinoInput.addEventListener('input', atualizarLinkGoogleMaps);
+
+    autoVehicleSelect.addEventListener('change', (e) => {
+        const selectedKey = e.target.value;
+        if (selectedKey && vehicleDatabase[selectedKey]) {
+            document.getElementById('kml').value = formatBR(vehicleDatabase[selectedKey], 1);
+        }
+    });
+
+    btnCalculate.addEventListener('click', () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
-        if (origemVal && destinoVal) {
-            const coordsOrigem = await geocodeAddress(origemVal);
-            const coordsDestino = await geocodeAddress(destinoVal);
-
-            if (coordsOrigem && coordsDestino) {
-                const calcKm = calcularDistanciaGeo(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
-                distanciaInput.value = formatBR(calcKm, 1);
+        // Tenta buscar a distância na tabela offline local caso a distância não esteja preenchida
+        let distanciaKm = parseFormattedNumber(distanciaInput.value);
+        if (distanciaKm === 0 && origemVal && destinoVal) {
+            const distOffline = buscarDistanciaLocal(origemVal, destinoVal);
+            if (distOffline) {
+                distanciaKm = distOffline;
+                distanciaInput.value = formatBR(distanciaKm, 1);
             }
-
-            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
         }
 
         const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
@@ -136,14 +145,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const fixedCostMonthly = parseFormattedNumber(document.getElementById('fixedCostMonthly').value) || 0;
         const monthlyKmAvg = parseFormattedNumber(document.getElementById('monthlyKmAvg').value) || 1000;
         const passengers = Math.max(1, parseInt(document.getElementById('passengers').value) || 1);
-        const distanciaKm = parseFormattedNumber(distanciaInput.value) || 0;
         
         const vehicleName = autoVehicleSelect.selectedIndex > 0 
             ? autoVehicleSelect.options[autoVehicleSelect.selectedIndex].text.split('(')[0].trim() 
             : "Personalizado";
 
         if (distanciaKm <= 0) {
-            alert('Por favor, informe a distância da viagem em quilômetros ou digite cidades válidas.');
+            alert('Por favor, informe a distância da viagem em quilômetros.');
             return;
         }
 
@@ -241,22 +249,5 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    });
-
-    btnGps.addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            alert('O seu dispositivo não suporta geolocalização.');
-            return;
-        }
-        alert('Capturando coordenadas atuais via GPS...');
-        navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            origemInput.value = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
-            btnOpenGoogleMaps.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
-            alert('Coordenadas obtidas com sucesso!');
-        }, () => {
-            alert('Erro ao obter sinal do GPS.');
-        }, { enableHighAccuracy: true });
     });
 });
