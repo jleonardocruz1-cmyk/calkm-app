@@ -58,7 +58,8 @@ const LOCAL_CITY_DISTANCES = {
     "maraba|belem": 550
 };
 
-let travelHistory = [];
+// Carrega o histórico salvo no localStorage ao iniciar (ou cria uma lista vazia)
+let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
 function parseFormattedNumber(val) {
     if (!val) return 0;
@@ -87,6 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
+    // Exibe o histórico salvo assim que o app abre
+    updateHistoryUI();
+
     function atualizarLinkGoogleMaps() {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
@@ -101,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     origemInput.addEventListener('input', () => {
         atualizarLinkGoogleMaps();
         
-        // Auto-detecta preço estimado por UF
         const text = origemInput.value.toUpperCase();
         let foundUf = 'DEFAULT';
         Object.keys(STATE_FUEL_PRICES).forEach((uf) => {
@@ -128,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
-        // Tenta buscar a distância na tabela offline local caso a distância não esteja preenchida
         let distanciaKm = parseFormattedNumber(distanciaInput.value);
         if (distanciaKm === 0 && origemVal && destinoVal) {
             const distOffline = buscarDistanciaLocal(origemVal, destinoVal);
@@ -188,7 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
             custoPassageiro: costPerPassenger,
             custoTotal: totalCost
         };
+
+        // Adiciona à lista e salva permanentemente no localStorage
         travelHistory.unshift(tripRecord);
+        localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
     });
 
