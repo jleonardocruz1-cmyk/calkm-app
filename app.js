@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
             custoTotal: totalCost
         };
 
+        // Adiciona à lista e salva permanentemente no localStorage
         travelHistory.unshift(tripRecord);
         localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
