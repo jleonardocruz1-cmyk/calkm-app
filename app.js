@@ -1,187 +1,258 @@
+const vehicleDatabase = {
+    "honda_pop_110": 55.0,
+    "honda_biz_125": 50.0,
+    "honda_cg_160": 38.0,
+    "yamaha_factor_150": 40.0,
+    "yamaha_fazer_250": 31.0,
+    "honda_cb_300f": 30.0,
+    "honda_xre_300": 28.0,
+    "yamaha_lander_250": 30.0,
+    "renault_kwid_10": 15.3,
+    "fiat_mobi_10": 13.5,
+    "fiat_argo_10": 13.4,
+    "chevrolet_onix_10": 13.3,
+    "hyundai_hb20_10": 12.8,
+    "volkswagen_polo_10": 13.8,
+    "toyota_yaris_13": 13.0,
+    "chevrolet_onix_plus": 13.7,
+    "volkswagen_virtus_10t": 13.2,
+    "toyota_corolla_20": 11.9,
+    "toyota_corolla_hybrid": 17.9,
+    "chevrolet_tracker_12": 11.2,
+    "hyundai_creta_10t": 11.5,
+    "jeep_renegade_13t": 11.0,
+    "volkswagen_nivus_10t": 12.1,
+    "fiat_strada_13": 12.5,
+    "fiat_toro_13t": 9.8,
+    "toyota_hilux_28": 10.1,
+    "chevrolet_s10_28": 10.3,
+    "fiat_fiorino_14": 11.8,
+    "renault_master_23": 10.0,
+    "hyundai_hr_25": 8.5,
+    "vw_delivery_3150": 7.5,
+    "scania_r450": 2.2
+};
+
+const STATE_FUEL_PRICES = {
+    SP: 5.82, RJ: 6.15, MG: 5.89, PA: 6.25, BA: 5.99,
+    RS: 6.05, PR: 5.75, SC: 5.80, DF: 5.90, GO: 5.85,
+    PE: 6.10, CE: 6.02, AM: 6.30, MA: 6.18, MT: 6.12,
+    MS: 5.95, ES: 5.98, RN: 6.08, PB: 6.04, AL: 6.12,
+    SE: 6.09, PI: 6.15, TO: 6.10, RO: 6.35, AC: 6.50,
+    RR: 6.45, AP: 6.20, DEFAULT: 5.95
+};
+
+// Tabela Local de Distâncias (Funciona 100% Offline)
+const LOCAL_CITY_DISTANCES = {
+    "parauapebas|maraba": 165,
+    "maraba|parauapebas": 165,
+    "parauapebas|belem": 700,
+    "belem|parauapebas": 700,
+    "parauapebas|sao luis": 780,
+    "sao luis|parauapebas": 780,
+    "salvador|feira de santana": 108,
+    "feira de santana|salvador": 108,
+    "salvador|guarajuba": 65,
+    "guarajuba|salvador": 65,
+    "belem|maraba": 550,
+    "maraba|belem": 550
+};
+
+// Carrega o histórico salvo no localStorage ao iniciar (ou cria uma lista vazia)
+let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
+
+function parseFormattedNumber(val) {
+    if (!val) return 0;
+    const cleanStr = val.toString().replace(/\./g, '').replace(',', '.');
+    return parseFloat(cleanStr) || 0;
+}
+
+function formatBR(val, decimals = 2) {
+    return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function buscarDistanciaLocal(origem, destino) {
+    const key = `${origem.toLowerCase().trim()}|${destino.toLowerCase().trim()}`;
+    return LOCAL_CITY_DISTANCES[key] || null;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Referências dos Elementos
+    const autoVehicleSelect = document.getElementById('autoVehicleSelect');
     const origemInput = document.getElementById('origemA');
     const destinoInput = document.getElementById('destinoB');
-    const btnMaps = document.getElementById('btnOpenGoogleMaps');
-    const autoVehicleSelect = document.getElementById('autoVehicleSelect');
-    
-    const distanciaKm = document.getElementById('distanciaKm');
-    const fuelPrice = document.getElementById('fuelPrice');
-    const maintenancePerKm = document.getElementById('maintenancePerKm');
-    const tolls = document.getElementById('tolls');
-    const fixedCostMonthly = document.getElementById('fixedCostMonthly');
-    const monthlyKmAvg = document.getElementById('monthlyKmAvg');
-    const passengers = document.getElementById('passengers');
-    const kml = document.getElementById('kml');
-
+    const distanciaInput = document.getElementById('distanciaKm');
+    const fuelPriceInput = document.getElementById('fuelPrice');
+    const regionPriceLabel = document.getElementById('regionPriceLabel');
     const btnCalculate = document.getElementById('btnCalculate');
     const btnClear = document.getElementById('btnClear');
     const btnExportCsv = document.getElementById('btnExportCsv');
-    
-    const resultBox = document.getElementById('result');
-    const resRouteDist = document.getElementById('resRouteDist');
-    const resFuelCost = document.getElementById('resFuelCost');
-    const resFixedCost = document.getElementById('resFixedCost');
-    const resCostPerKm = document.getElementById('resCostPerKm');
-    const resCostPerPassenger = document.getElementById('resCostPerPassenger');
-    const resTotalCost = document.getElementById('resTotalCost');
-    const historyList = document.getElementById('historyList');
+    const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
-    // 1. Atualização Dinâmica do Link do Google Maps com Origem e Destino
+    // Exibe o histórico salvo assim que o app abre
+    updateHistoryUI();
+
     function atualizarLinkGoogleMaps() {
-        const origem = encodeURIComponent(origemInput.value.trim());
-        const destino = encodeURIComponent(destinoInput.value.trim());
+        const origemVal = origemInput.value.trim();
+        const destinoVal = destinoInput.value.trim();
 
-        if (origem && destino) {
-            btnMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${origem}&destination=${destino}`;
+        if (origemVal && destinoVal) {
+            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
         } else {
-            btnMaps.href = 'https://www.google.com/maps';
+            btnOpenGoogleMaps.href = 'https://www.google.com/maps';
         }
     }
 
-    origemInput.addEventListener('input', atualizarLinkGoogleMaps);
+    origemInput.addEventListener('input', () => {
+        atualizarLinkGoogleMaps();
+        
+        const text = origemInput.value.toUpperCase();
+        let foundUf = 'DEFAULT';
+        Object.keys(STATE_FUEL_PRICES).forEach((uf) => {
+            if (uf !== 'DEFAULT') {
+                const regex = new RegExp(`\\b${uf}\\b`, 'i');
+                if (regex.test(text)) foundUf = uf;
+            }
+        });
+        const price = STATE_FUEL_PRICES[foundUf];
+        fuelPriceInput.value = formatBR(price, 2);
+        regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (${foundUf !== 'DEFAULT' ? 'Estado: ' + foundUf : 'Média Nacional'}): <b>R$ ${formatBR(price, 2)}</b>`;
+    });
+
     destinoInput.addEventListener('input', atualizarLinkGoogleMaps);
 
-    // 2. Tabela de Veículos Inmetro (Preenchimento Automático de Consumo)
-    const veiculosConsumo = {
-        // Motos
-        "honda_pop_110": 55.0, "honda_biz_125": 50.0, "honda_cg_160": 38.0,
-        "yamaha_factor_150": 40.0, "yamaha_fazer_250": 31.0, "honda_cb_300f": 30.0,
-        "honda_xre_300": 28.0, "yamaha_lander_250": 30.0,
-        // Carros Hatch
-        "renault_kwid_10": 15.3, "fiat_mobi_10": 13.5, "fiat_argo_10": 13.4,
-        "chevrolet_onix_10": 13.3, "hyundai_hb20_10": 12.8, "volkswagen_polo_10": 13.8,
-        "toyota_yaris_13": 13.0,
-        // Sedãs & SUVs
-        "chevrolet_onix_plus": 13.7, "volkswagen_virtus_10t": 13.2, "toyota_corolla_20": 11.9,
-        "toyota_corolla_hybrid": 17.9, "chevrolet_tracker_12": 11.2, "hyundai_creta_10t": 11.5,
-        "jeep_renegade_13t": 11.0, "volkswagen_nivus_10t": 12.1,
-        // Utilitários & Picapes
-        "fiat_strada_13": 12.5, "fiat_toro_13t": 9.8, "toyota_hilux_28": 10.1,
-        "chevrolet_s10_28": 10.3, "fiat_fiorino_14": 11.8, "renault_master_23": 10.0,
-        "hyundai_hr_25": 8.5, "vw_delivery_3150": 7.5, "scania_r450": 2.2
-    };
-
     autoVehicleSelect.addEventListener('change', (e) => {
-        const val = e.target.value;
-        if (veiculosConsumo[val]) {
-            kml.value = veiculosConsumo[val].toString().replace('.', ',');
+        const selectedKey = e.target.value;
+        if (selectedKey && vehicleDatabase[selectedKey]) {
+            document.getElementById('kml').value = formatBR(vehicleDatabase[selectedKey], 1);
         }
     });
 
-    // Função Auxiliar para converter formato PT-BR (vírgula) para número JS
-    function parseNumber(value) {
-        if (!value) return 0;
-        return parseFloat(value.toString().replace(/\./g, '').replace(',', '.')) || 0;
-    }
-
-    // 3. Lógica de Cálculo de Custos
     btnCalculate.addEventListener('click', () => {
-        const dist = parseNumber(distanciaKm.value);
-        const precoL = parseNumber(fuelPrice.value);
-        const manutenKm = parseNumber(maintenancePerKm.value);
-        const pedagio = parseNumber(tolls.value);
-        const custoFixoM = parseNumber(fixedCostMonthly.value);
-        const kmMedioM = parseNumber(monthlyKmAvg.value);
-        const pass = parseInt(passagens.value || passengers.value) || 1;
-        const consumoL = parseNumber(kml.value);
+        const origemVal = origemInput.value.trim();
+        const destinoVal = destinoInput.value.trim();
 
-        if (consumoL <= 0) {
-            alert('Por favor, informe um consumo válido em Km/L.');
+        let distanciaKm = parseFormattedNumber(distanciaInput.value);
+        if (distanciaKm === 0 && origemVal && destinoVal) {
+            const distOffline = buscarDistanciaLocal(origemVal, destinoVal);
+            if (distOffline) {
+                distanciaKm = distOffline;
+                distanciaInput.value = formatBR(distanciaKm, 1);
+            }
+        }
+
+        const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
+        const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
+        const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
+        const tolls = parseFormattedNumber(document.getElementById('tolls').value) || 0;
+        const fixedCostMonthly = parseFormattedNumber(document.getElementById('fixedCostMonthly').value) || 0;
+        const monthlyKmAvg = parseFormattedNumber(document.getElementById('monthlyKmAvg').value) || 1000;
+        const passengers = Math.max(1, parseInt(document.getElementById('passengers').value) || 1);
+        
+        const vehicleName = autoVehicleSelect.selectedIndex > 0 
+            ? autoVehicleSelect.options[autoVehicleSelect.selectedIndex].text.split('(')[0].trim() 
+            : "Personalizado";
+
+        if (distanciaKm <= 0) {
+            alert('Por favor, informe a distância da viagem em quilômetros.');
             return;
         }
 
-        // Cálculos
-        const litrosGastos = dist / consumoL;
-        const custoCombustivel = litrosGastos * precoL;
-        const custoManutencao = dist * manutenKm;
+        const fuelCost = (distanciaKm / kml) * fuelPrice;
+        const fixedCostPerKm = monthlyKmAvg > 0 ? fixedCostMonthly / monthlyKmAvg : 0;
+        const tripFixedCost = distanciaKm * fixedCostPerKm;
+        const totalMaintenanceCost = distanciaKm * maintenancePerKm;
         
-        // Custo fixo proporcional à distância da viagem
-        let custoFixoProporcional = 0;
-        if (kmMedioM > 0) {
-            const custoPorKmFixo = custoFixoM / kmMedioM;
-            custoFixoProporcional = dist * custoPorKmFixo;
-        }
+        const totalCost = fuelCost + totalMaintenanceCost + tolls + tripFixedCost;
+        const costPerKm = totalCost / distanciaKm;
+        const costPerPassenger = totalCost / passengers;
 
-        const custoTotal = custoCombustivel + custoManutencao + pedagio + custoFixoProporcional;
-        const custoPorKmFinal = dist > 0 ? (custoTotal / dist) : 0;
-        const custoPorPassageiroFinal = pass > 0 ? (custoTotal / pass) : custoTotal;
+        document.getElementById('resRouteDist').innerText = `${formatBR(distanciaKm, 1)} km`;
+        document.getElementById('resFuelCost').innerText = `R$ ${formatBR(fuelCost, 2)}`;
+        document.getElementById('resFixedCost').innerText = `R$ ${formatBR(tripFixedCost, 2)}`;
+        document.getElementById('resCostPerKm').innerText = `R$ ${formatBR(costPerKm, 2)}`;
+        document.getElementById('resCostPerPassenger').innerText = `R$ ${formatBR(costPerPassenger, 2)}`;
+        document.getElementById('resTotalCost').innerText = `R$ ${formatBR(totalCost, 2)}`;
+        document.getElementById('result').style.display = 'block';
 
-        // Exibição dos Resultados
-        resRouteDist.textContent = `${dist.toFixed(1).replace('.', ',')} km`;
-        resFuelCost.textContent = `R$ ${custoCombustivel.toFixed(2).replace('.', ',')}`;
-        resFixedCost.textContent = `R$ ${custoFixoProporcional.toFixed(2).replace('.', ',')}`;
-        resCostPerKm.textContent = `R$ ${custoPorKmFinal.toFixed(2).replace('.', ',')}`;
-        resCostPerPassenger.textContent = `R$ ${custoPorPassageiro.toFixed(2).replace('.', ',')}`;
-        resTotalCost.textContent = `R$ ${custoTotal.toFixed(2).replace('.', ',')}`;
+        const tripRecord = {
+            data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}),
+            veiculo: vehicleName,
+            origem: origemVal || "Não informada",
+            destino: destinoVal || "Não informado",
+            distancia: distanciaKm,
+            kml,
+            precoLitro: fuelPrice,
+            manutencaoKm: maintenancePerKm,
+            pedagios: tolls,
+            custoFixo: tripFixedCost,
+            passageiros: passengers,
+            custoKm: costPerKm,
+            custoPassageiro: costPerPassenger,
+            custoTotal: totalCost
+        };
 
-        resultBox.style.display = 'block';
-
-        // Salvar no Histórico Local
-        salvarNoHistorico({
-            origem: origemInput.value || 'Não informada',
-            destino: destinoInput.value || 'Não informado',
-            distancia: dist,
-            custoTotal: custoTotal,
-            data: new Date().toLocaleDateString('pt-BR')
-        });
+        // Adiciona à lista e salva permanentemente no localStorage
+        travelHistory.unshift(tripRecord);
+        localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
+        updateHistoryUI();
     });
 
-    // 4. Limpar Campos
     btnClear.addEventListener('click', () => {
         origemInput.value = '';
         destinoInput.value = '';
-        distanciaKm.value = '0,0';
-        tolls.value = '0,00';
-        resultBox.style.display = 'none';
-        atualizarLinkGoogleMaps();
+        distanciaInput.value = '0,0';
+        document.getElementById('fuelPrice').value = '5,95';
+        document.getElementById('maintenancePerKm').value = '0,20';
+        document.getElementById('tolls').value = '0,00';
+        document.getElementById('fixedCostMonthly').value = '0,00';
+        document.getElementById('monthlyKmAvg').value = '1000';
+        document.getElementById('passengers').value = '1';
+        document.getElementById('kml').value = '12,5';
+        autoVehicleSelect.selectedIndex = 0;
+        document.getElementById('result').style.display = 'none';
+        btnOpenGoogleMaps.href = 'https://www.google.com/maps';
+        regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b>`;
     });
 
-    // 5. Histórico e Exportação CSV
-    function salvarNoHistorico(viagem) {
-        let historico = JSON.parse(localStorage.getItem('calkm_history')) || [];
-        historico.unshift(viagem);
-        if (historico.length > 20) historico.pop(); // Mantém os últimos 20
-        localStorage.setItem('calkm_history', JSON.stringify(historico));
-        carregarHistorico();
-    }
-
-    function carregarHistorico() {
-        let historico = JSON.parse(localStorage.getItem('calkm_history')) || [];
-        if (historico.length === 0) {
+    function updateHistoryUI() {
+        const historyList = document.getElementById('historyList');
+        if (travelHistory.length === 0) {
             historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
             return;
         }
 
-        let html = '<ul style="padding-left: 15px; margin: 0;">';
-        historico.forEach(item => {
-            html += `<li style="margin-bottom: 6px;"><b>${item.origem} ➔ ${item.destino}</b> (${item.distancia} km) - <b>R$ ${item.custoTotal.toFixed(2).replace('.', ',')}</b> <span style="font-size: 11px; color: #888;">(${item.data})</span></li>`;
+        let html = '';
+        travelHistory.forEach((trip, index) => {
+            html += `<div style="padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 4px;">
+                <b>#${travelHistory.length - index} (${trip.data})</b><br>
+                🚗 <b>Veículo:</b> ${trip.veiculo} (${trip.kml} km/L)<br>
+                📍 <b>Rota:</b> ${trip.origem} ➔ ${trip.destino}<br>
+                📏 <b>Distância:</b> ${formatBR(trip.distancia, 1)} km | ⛽ <b>Combustível:</b> R$ ${formatBR(trip.precoLitro, 2)}/L<br>
+                🛠️ <b>Manutenção:</b> R$ ${formatBR(trip.manutencaoKm, 2)} | 🎫 <b>Pedágios:</b> R$ ${formatBR(trip.pedagios, 2)}<br>
+                👥 <b>Passageiros:</b> ${trip.passageiros} (R$ ${formatBR(trip.custoPassageiro, 2)}/cada)<br>
+                💰 <b>Custo/Km:</b> R$ ${formatBR(trip.custoKm, 2)} | 🟢 <b>Total:</b> <b>R$ ${formatBR(trip.custoTotal, 2)}</b>
+            </div>`;
         });
-        html += '</ul>';
         historyList.innerHTML = html;
     }
 
     btnExportCsv.addEventListener('click', () => {
-        let historico = JSON.parse(localStorage.getItem('calkm_history')) || [];
-        if (historico.length === 0) {
-            alert('Não há histórico para exportar.');
+        if (travelHistory.length === 0) {
+            alert('Não há viagens no histórico para exportar.');
             return;
         }
 
-        let csvContent = "data:text/csv;charset=utf-8,Origem;Destino;Distancia (km);Custo Total (R$);Data\n";
-        historico.forEach(item => {
-            csvContent += `"${item.origem}";"${item.destino}";"${item.distancia}";"${item.custoTotal.toFixed(2)}";"${item.data}"\n`;
+        let csvContent = "data:text/csv;charset=utf-8,Data;Veiculo;Origem;Destino;Distancia_Km;Consumo_KmL;Preco_Litro_R$;Manutencao_Km_R$;Pedagios_R$;Custo_Fixo_R$;Passageiros;Custo_Por_Km_R$;Custo_Por_Passageiro_R$;Custo_Total_R$\n";
+        travelHistory.forEach(trip => {
+            csvContent += `${trip.data};"${trip.veiculo}";"${trip.origem}";"${trip.destino}";${trip.distancia.toFixed(2)};${trip.kml.toFixed(1)};${trip.precoLitro.toFixed(2)};${trip.manutencaoKm.toFixed(2)};${trip.pedagios.toFixed(2)};${trip.custoFixo.toFixed(2)};${trip.passageiros};${trip.custoKm.toFixed(2)};${trip.custoPassageiro.toFixed(2)};${trip.custoTotal.toFixed(2)}\n`;
         });
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "historico_calkm.csv");
+        link.setAttribute("download", "historico_calkm_completo.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     });
-
-    // Carregar histórico ao iniciar a aplicação
-    carregarHistorico();
 });
