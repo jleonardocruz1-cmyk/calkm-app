@@ -104,47 +104,47 @@
             </a>
         </div>
 
-        <!-- Valores e Custos da Viagem -->
+        <!-- Valores e Custos da Viagem (Com inputs ajustados para teclado numérico) -->
         <div class="card">
             <h3>📊 Valores da Viagem</h3>
             <div class="grid-values">
                 <div class="input-group">
                     <label>Distância (km) [Calculada ou Manual]</label>
-                    <input type="text" id="distanciaKm" value="0,0" placeholder="Ex: 2150,0">
+                    <input type="text" id="distanciaKm" value="0,0" placeholder="Ex: 2150,0" inputmode="decimal" pattern="[0-9]*">
                 </div>
                 <div class="input-group">
                     <label>Preço Litro (R$)</label>
-                    <input type="text" id="fuelPrice" value="5,95" placeholder="5,95">
+                    <input type="text" id="fuelPrice" value="5,95" placeholder="5,95" inputmode="decimal" pattern="[0-9]*">
                 </div>
             </div>
             <div class="grid-values" style="margin-top: 10px;">
                 <div class="input-group">
                     <label>Manutenção/Km (R$)</label>
-                    <input type="text" id="maintenancePerKm" value="0,20" placeholder="0,20">
+                    <input type="text" id="maintenancePerKm" value="0,20" placeholder="0,20" inputmode="decimal" pattern="[0-9]*">
                 </div>
                 <div class="input-group">
                     <label>Pedágios (R$)</label>
-                    <input type="text" id="tolls" value="0,00" placeholder="0,00">
+                    <input type="text" id="tolls" value="0,00" placeholder="0,00" inputmode="decimal" pattern="[0-9]*">
                 </div>
             </div>
             <div class="grid-values" style="margin-top: 10px;">
                 <div class="input-group">
                     <label>Custo Fixo Mensal (R$)</label>
-                    <input type="text" id="fixedCostMonthly" value="0,00" placeholder="Seguro, IPVA...">
+                    <input type="text" id="fixedCostMonthly" value="0,00" placeholder="Seguro, IPVA..." inputmode="decimal" pattern="[0-9]*">
                 </div>
                 <div class="input-group">
                     <label>Média Km/Mês</label>
-                    <input type="text" id="monthlyKmAvg" value="1000" placeholder="1000">
+                    <input type="text" id="monthlyKmAvg" value="1000" placeholder="1000" inputmode="decimal" pattern="[0-9]*">
                 </div>
             </div>
             <div class="grid-values" style="margin-top: 10px;">
                 <div class="input-group">
                     <label>Passageiros (Divisão)</label>
-                    <input type="text" id="passengers" value="1" placeholder="1">
+                    <input type="text" id="passengers" value="1" placeholder="1" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <div class="input-group">
                     <label>Consumo (Km/L)</label>
-                    <input type="text" id="kml" value="12,5" placeholder="Km/L">
+                    <input type="text" id="kml" value="12,5" placeholder="Km/L" inputmode="decimal" pattern="[0-9]*">
                 </div>
             </div>
         </div>
