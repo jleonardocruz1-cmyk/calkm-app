@@ -42,14 +42,12 @@ const STATE_FUEL_PRICES = {
     RR: 6.45, AP: 6.20, DEFAULT: 5.95
 };
 
-// Carrega o histórico salvo no localStorage ao iniciar (ou cria uma lista vazia)
+// Carrega o histórico salvo no localStorage ao iniciar
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
-// Função corrigida e blindada para ler qualquer número digitado (com vírgula ou ponto)
 function parseFormattedNumber(val) {
     if (!val) return 0;
     let cleanStr = val.toString().trim();
-    // Substitui ponto de milhar se houver e troca vírgula decimal por ponto
     cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
     const num = parseFloat(cleanStr);
     return isNaN(num) ? 0 : num;
@@ -71,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
-    // Função para atualizar a interface do histórico
     function updateHistoryUI() {
         const historyList = document.getElementById('historyList');
         if (!historyList) return;
@@ -96,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         historyList.innerHTML = html;
     }
 
-    // Exibe o histórico salvo assim que o app abre
     updateHistoryUI();
 
     function atualizarLinkGoogleMaps() {
@@ -199,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClear.addEventListener('click', () => {
         origemInput.value = '';
         destinoInput.value = '';
-        distanciaInput.value = '0,0';
+        distanciaInput.value = ''; // Deixa vazio para evitar o bloqueio do 0,0
         document.getElementById('fuelPrice').value = '5,95';
         document.getElementById('maintenancePerKm').value = '0,20';
         document.getElementById('tolls').value = '0,00';
