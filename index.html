@@ -29,7 +29,7 @@
             
             <!-- Aviso caso o veículo não esteja na lista -->
             <p style="font-size: 13px; color: #475569; background-color: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #0d47a1;">
-                💡 <b>Dica:</b> Caso seu veículo não esteja na lista, basta preencher diretamente a média do seu modelo no campo <b>Consumo (Km/L)</b> em <i>Valores da Viagem</i>.
+                💡 <b>Dica:</b> Caso o seu veículo não esteja na lista, basta preencher diretamente a média do seu modelo no campo <b>Consumo (Km/L)</b> em <i>Valores da Viagem</i>.
             </p>
 
             <div class="vehicle-options-box">
@@ -104,7 +104,7 @@
             </a>
         </div>
 
-        <!-- Valores e Custos da Viagem (Com inputs ajustados para teclado numérico) -->
+        <!-- Valores e Custos da Viagem -->
         <div class="card">
             <h3>📊 Valores da Viagem</h3>
             <div class="grid-values">
@@ -172,6 +172,16 @@
             <button id="btnExportCsv" class="btn-secondary btn-export">📥 Baixar Histórico Completo em CSV</button>
         </div>
     </div>
+    
     <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registado com sucesso!'))
+                    .catch(err => console.log('Erro ao registar Service Worker:', err));
+            });
+        }
+    </script>
 </body>
 </html>
