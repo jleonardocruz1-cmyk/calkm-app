@@ -42,22 +42,6 @@ const STATE_FUEL_PRICES = {
     RR: 6.45, AP: 6.20, DEFAULT: 5.95
 };
 
-// Tabela Local de Distâncias (Funciona 100% Offline)
-const LOCAL_CITY_DISTANCES = {
-    "parauapebas|maraba": 165,
-    "maraba|parauapebas": 165,
-    "parauapebas|belem": 700,
-    "belem|parauapebas": 700,
-    "parauapebas|sao luis": 780,
-    "sao luis|parauapebas": 780,
-    "salvador|feira de santana": 108,
-    "feira de santana|salvador": 108,
-    "salvador|guarajuba": 65,
-    "guarajuba|salvador": 65,
-    "belem|maraba": 550,
-    "maraba|belem": 550
-};
-
 // Carrega o histórico salvo no localStorage ao iniciar (ou cria uma lista vazia)
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
@@ -69,11 +53,6 @@ function parseFormattedNumber(val) {
 
 function formatBR(val, decimals = 2) {
     return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
-
-function buscarDistanciaLocal(origem, destino) {
-    const key = `${origem.toLowerCase().trim()}|${destino.toLowerCase().trim()}`;
-    return LOCAL_CITY_DISTANCES[key] || null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -131,15 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
-        let distanciaKm = parseFormattedNumber(distanciaInput.value);
-        if (distanciaKm === 0 && origemVal && destinoVal) {
-            const distOffline = buscarDistanciaLocal(origemVal, destinoVal);
-            if (distOffline) {
-                distanciaKm = distOffline;
-                distanciaInput.value = formatBR(distanciaKm, 1);
-            }
-        }
-
+        const distanciaKm = parseFormattedNumber(distanciaInput.value);
         const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
         const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
         const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
@@ -191,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
             custoTotal: totalCost
         };
 
-        // Adiciona à lista e salva permanentemente no localStorage
         travelHistory.unshift(tripRecord);
         localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
