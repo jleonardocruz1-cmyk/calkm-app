@@ -45,10 +45,14 @@ const STATE_FUEL_PRICES = {
 // Carrega o histórico salvo no localStorage ao iniciar (ou cria uma lista vazia)
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
+// Função corrigida e blindada para ler qualquer número digitado (com vírgula ou ponto)
 function parseFormattedNumber(val) {
     if (!val) return 0;
-    const cleanStr = val.toString().replace(/\./g, '').replace(',', '.');
-    return parseFloat(cleanStr) || 0;
+    let cleanStr = val.toString().trim();
+    // Substitui ponto de milhar se houver e troca vírgula decimal por ponto
+    cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? 0 : num;
 }
 
 function formatBR(val, decimals = 2) {
@@ -66,6 +70,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnClear = document.getElementById('btnClear');
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
+
+    // Função para atualizar a interface do histórico
+    function updateHistoryUI() {
+        const historyList = document.getElementById('historyList');
+        if (!historyList) return;
+        
+        if (travelHistory.length === 0) {
+            historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
+            return;
+        }
+
+        let html = '';
+        travelHistory.forEach((trip, index) => {
+            html += `<div style="padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 4px;">
+                <b>#${travelHistory.length - index} (${trip.data})</b><br>
+                🚗 <b>Veículo:</b> ${trip.veiculo} (${trip.kml} km/L)<br>
+                📍 <b>Rota:</b> ${trip.origem} ➔ ${trip.destino}<br>
+                📏 <b>Distância:</b> ${formatBR(trip.distancia, 1)} km | ⛽ <b>Combustível:</b> R$ ${formatBR(trip.precoLitro, 2)}/L<br>
+                🛠️ <b>Manutenção:</b> R$ ${formatBR(trip.manutencaoKm, 2)} | 🎫 <b>Pedágios:</b> R$ ${formatBR(trip.pedagios, 2)}<br>
+                👥 <b>Passageiros:</b> ${trip.passageiros} (R$ ${formatBR(trip.custoPassageiro, 2)}/cada)<br>
+                💰 <b>Custo/Km:</b> R$ ${formatBR(trip.custoKm, 2)} | 🟢 <b>Total:</b> <b>R$ ${formatBR(trip.custoTotal, 2)}</b>
+            </div>`;
+        });
+        historyList.innerHTML = html;
+    }
 
     // Exibe o histórico salvo assim que o app abre
     updateHistoryUI();
@@ -183,28 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnOpenGoogleMaps.href = 'https://www.google.com/maps';
         regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b>`;
     });
-
-    function updateHistoryUI() {
-        const historyList = document.getElementById('historyList');
-        if (travelHistory.length === 0) {
-            historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
-            return;
-        }
-
-        let html = '';
-        travelHistory.forEach((trip, index) => {
-            html += `<div style="padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 4px;">
-                <b>#${travelHistory.length - index} (${trip.data})</b><br>
-                🚗 <b>Veículo:</b> ${trip.veiculo} (${trip.kml} km/L)<br>
-                📍 <b>Rota:</b> ${trip.origem} ➔ ${trip.destino}<br>
-                📏 <b>Distância:</b> ${formatBR(trip.distancia, 1)} km | ⛽ <b>Combustível:</b> R$ ${formatBR(trip.precoLitro, 2)}/L<br>
-                🛠️ <b>Manutenção:</b> R$ ${formatBR(trip.manutencaoKm, 2)} | 🎫 <b>Pedágios:</b> R$ ${formatBR(trip.pedagios, 2)}<br>
-                👥 <b>Passageiros:</b> ${trip.passageiros} (R$ ${formatBR(trip.custoPassageiro, 2)}/cada)<br>
-                💰 <b>Custo/Km:</b> R$ ${formatBR(trip.custoKm, 2)} | 🟢 <b>Total:</b> <b>R$ ${formatBR(trip.custoTotal, 2)}</b>
-            </div>`;
-        });
-        historyList.innerHTML = html;
-    }
 
     btnExportCsv.addEventListener('click', () => {
         if (travelHistory.length === 0) {
