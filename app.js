@@ -42,38 +42,46 @@ const STATE_FUEL_PRICES = {
     RR: 6.45, AP: 6.20, DEFAULT: 5.95
 };
 
-// Tabela Local de Distâncias (Funciona 100% Offline)
-const LOCAL_CITY_DISTANCES = {
-    "parauapebas|maraba": 165,
-    "maraba|parauapebas": 165,
-    "parauapebas|belem": 700,
-    "belem|parauapebas": 700,
-    "parauapebas|sao luis": 780,
-    "sao luis|parauapebas": 780,
-    "salvador|feira de santana": 108,
-    "feira de santana|salvador": 108,
-    "salvador|guarajuba": 65,
-    "guarajuba|salvador": 65,
-    "belem|maraba": 550,
-    "maraba|belem": 550
-};
-
-// Carrega o histórico salvo no localStorage ao iniciar (ou cria uma lista vazia)
+// Carrega o histórico salvo no localStorage ao iniciar
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
 function parseFormattedNumber(val) {
     if (!val) return 0;
-    const cleanStr = val.toString().replace(/\./g, '').replace(',', '.');
-    return parseFloat(cleanStr) || 0;
+    let cleanStr = val.toString().trim();
+    cleanStr = cleanStr.replace(/\./g, '').replace(',', '.');
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? 0 : num;
 }
 
 function formatBR(val, decimals = 2) {
     return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-function buscarDistanciaLocal(origem, destino) {
-    const key = `${origem.toLowerCase().trim()}|${destino.toLowerCase().trim()}`;
-    return LOCAL_CITY_DISTANCES[key] || null;
+// Função matemática para calcular a distância em linha reta entre coordenadas geográficas com fator rodoviário
+function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c) * 1.35; // Fator de correção rodoviária ajustado
+}
+
+// Função online para buscar coordenadas geográficas pelo nome da cidade
+async function geocodeAddress(address) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+        }
+    } catch (e) {
+        console.error("Erro na geocodificação:", e);
+    }
+    return null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -88,7 +96,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
-    // Exibe o histórico salvo assim que o app abre
+    function updateHistoryUI() {
+        const historyList = document.getElementById('historyList');
+        if (!historyList) return;
+        
+        if (travelHistory.length === 0) {
+            historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
+            return;
+        }
+
+        let html = '';
+        travelHistory.forEach((trip, index) => {
+            html += `<div style="padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 4px;">
+                <b>#${travelHistory.length - index} (${trip.data})</b><br>
+                🚗 <b>Veículo:</b> ${trip.veiculo} (${trip.kml} km/L)<br>
+                📍 <b>Rota:</b> ${trip.origem} ➔ ${trip.destino}<br>
+                📏 <b>Distância:</b> ${formatBR(trip.distancia, 1)} km | ⛽ <b>Combustível:</b> R$ ${formatBR(trip.precoLitro, 2)}/L<br>
+                🛠️ <b>Manutenção:</b> R$ ${formatBR(trip.manutencaoKm, 2)} | 🎫 <b>Pedágios:</b> R$ ${formatBR(trip.pedagios, 2)}<br>
+                👥 <b>Passageiros:</b> ${trip.passageiros} (R$ ${formatBR(trip.custoPassageiro, 2)}/cada)<br>
+                💰 <b>Custo/Km:</b> R$ ${formatBR(trip.custoKm, 2)} | 🟢 <b>Total:</b> <b>R$ ${formatBR(trip.custoTotal, 2)}</b>
+            </div>`;
+        });
+        historyList.innerHTML = html;
+    }
+
     updateHistoryUI();
 
     function atualizarLinkGoogleMaps() {
@@ -127,19 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    btnCalculate.addEventListener('click', () => {
+    btnCalculate.addEventListener('click', async () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
-        let distanciaKm = parseFormattedNumber(distanciaInput.value);
-        if (distanciaKm === 0 && origemVal && destinoVal) {
-            const distOffline = buscarDistanciaLocal(origemVal, destinoVal);
-            if (distOffline) {
-                distanciaKm = distOffline;
-                distanciaInput.value = formatBR(distanciaKm, 1);
+        // Se houver origem e destino preenchidos, tenta calcular a distância online via geocodificação
+        if (origemVal && destinoVal) {
+            const coordsOrigem = await geocodeAddress(origemVal);
+            const coordsDestino = await geocodeAddress(destinoVal);
+
+            if (coordsOrigem && coordsDestino) {
+                const calcKm = calcularDistanciaGeo(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                distanciaInput.value = formatBR(calcKm, 1);
             }
         }
 
+        const distanciaKm = parseFormattedNumber(distanciaInput.value);
         const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
         const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
         const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
@@ -153,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : "Personalizado";
 
         if (distanciaKm <= 0) {
-            alert('Por favor, informe a distância da viagem em quilômetros.');
+            alert('Por favor, informe a distância da viagem em quilômetros ou preencha cidades válidas.');
             return;
         }
 
@@ -191,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
             custoTotal: totalCost
         };
 
-        // Adiciona à lista e salva permanentemente no localStorage
         travelHistory.unshift(tripRecord);
         localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
@@ -200,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClear.addEventListener('click', () => {
         origemInput.value = '';
         destinoInput.value = '';
-        distanciaInput.value = '0,0';
+        distanciaInput.value = '';
         document.getElementById('fuelPrice').value = '5,95';
         document.getElementById('maintenancePerKm').value = '0,20';
         document.getElementById('tolls').value = '0,00';
@@ -213,28 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnOpenGoogleMaps.href = 'https://www.google.com/maps';
         regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b>`;
     });
-
-    function updateHistoryUI() {
-        const historyList = document.getElementById('historyList');
-        if (travelHistory.length === 0) {
-            historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
-            return;
-        }
-
-        let html = '';
-        travelHistory.forEach((trip, index) => {
-            html += `<div style="padding: 8px; border-bottom: 1px solid #eee; margin-bottom: 4px;">
-                <b>#${travelHistory.length - index} (${trip.data})</b><br>
-                🚗 <b>Veículo:</b> ${trip.veiculo} (${trip.kml} km/L)<br>
-                📍 <b>Rota:</b> ${trip.origem} ➔ ${trip.destino}<br>
-                📏 <b>Distância:</b> ${formatBR(trip.distancia, 1)} km | ⛽ <b>Combustível:</b> R$ ${formatBR(trip.precoLitro, 2)}/L<br>
-                🛠️ <b>Manutenção:</b> R$ ${formatBR(trip.manutencaoKm, 2)} | 🎫 <b>Pedágios:</b> R$ ${formatBR(trip.pedagios, 2)}<br>
-                👥 <b>Passageiros:</b> ${trip.passageiros} (R$ ${formatBR(trip.custoPassageiro, 2)}/cada)<br>
-                💰 <b>Custo/Km:</b> R$ ${formatBR(trip.custoKm, 2)} | 🟢 <b>Total:</b> <b>R$ ${formatBR(trip.custoTotal, 2)}</b>
-            </div>`;
-        });
-        historyList.innerHTML = html;
-    }
 
     btnExportCsv.addEventListener('click', () => {
         if (travelHistory.length === 0) {
