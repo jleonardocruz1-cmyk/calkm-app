@@ -1,36 +1,92 @@
-const vehicleDatabase = {
-    "honda_pop_110": 55.0,
-    "honda_biz_125": 50.0,
-    "honda_cg_160": 38.0,
-    "yamaha_factor_150": 40.0,
-    "yamaha_fazer_250": 31.0,
-    "honda_cb_300f": 30.0,
-    "honda_xre_300": 28.0,
-    "yamaha_lander_250": 30.0,
-    "renault_kwid_10": 15.3,
-    "fiat_mobi_10": 13.5,
-    "fiat_argo_10": 13.4,
-    "chevrolet_onix_10": 13.3,
-    "hyundai_hb20_10": 12.8,
-    "volkswagen_polo_10": 13.8,
-    "toyota_yaris_13": 13.0,
-    "chevrolet_onix_plus": 13.7,
-    "volkswagen_virtus_10t": 13.2,
-    "toyota_corolla_20": 11.9,
-    "toyota_corolla_hybrid": 17.9,
-    "chevrolet_tracker_12": 11.2,
-    "hyundai_creta_10t": 11.5,
-    "jeep_renegade_13t": 11.0,
-    "volkswagen_nivus_10t": 12.1,
-    "fiat_strada_13": 12.5,
-    "fiat_toro_13t": 9.8,
-    "toyota_hilux_28": 10.1,
-    "chevrolet_s10_28": 10.3,
-    "fiat_fiorino_14": 11.8,
-    "renault_master_23": 10.0,
-    "hyundai_hr_25": 8.5,
-    "vw_delivery_3150": 7.5,
-    "scania_r450": 2.2
+// Banco de veículos estruturado por marcas e modelos com seus consumos (Km/L ou eq.)
+const vehicleBrandsDatabase = {
+    "BYD": {
+        "byd_dolphin_mini": { name: "Dolphin Mini (Elétrico)", kml: 65.0 },
+        "byd_dolphin_ev": { name: "Dolphin EV", kml: 62.0 },
+        "byd_seal_ev": { name: "Seal EV", kml: 48.0 },
+        "byd_yuan_plus": { name: "Yuan Plus", kml: 52.0 },
+        "byd_song_plus_phev": { name: "Song Plus DM-i (Híbrido)", kml: 21.5 },
+        "byd_king_phev": { name: "King DM-i (Híbrido)", kml: 25.6 }
+    },
+    "Honda": {
+        "honda_pop_110": { name: "Pop 110i", kml: 55.0 },
+        "honda_biz_125": { name: "Biz 125", kml: 50.0 },
+        "honda_cg_160": { name: "CG 160 Titan / Fan", kml: 38.0 },
+        "honda_cb_300f": { name: "CB 300F Twister", kml: 30.0 },
+        "honda_xre_300": { name: "XRE 300", kml: 28.0 },
+        "honda_hrv_15": { name: "HR-V 1.5", kml: 12.7 }
+    },
+    "Toyota": {
+        "toyota_yaris_13": { name: "Yaris 1.3", kml: 13.0 },
+        "toyota_corolla_20": { name: "Corolla 2.0 Dynamic", kml: 11.9 },
+        "toyota_corolla_hybrid": { name: "Corolla Híbrido", kml: 17.9 },
+        "toyota_corolla_cross_hybrid": { name: "Corolla Cross Híbrido", kml: 17.8 },
+        "toyota_hilux_28": { name: "Hilux 2.8 Diesel", kml: 10.1 }
+    },
+    "Volkswagen": {
+        "volkswagen_polo_10": { name: "Polo 1.0", kml: 13.8 },
+        "volkswagen_virtus_10t": { name: "Virtus 1.0 TSI", kml: 13.2 },
+        "volkswagen_nivus_10t": { name: "Nivus 1.0 TSI", kml: 12.1 },
+        "volkswagen_t_cross_10t": { name: "T-Cross 1.0 TSI", kml: 12.0 },
+        "vw_delivery_3150": { name: "Delivery Express 3.150", kml: 7.5 }
+    },
+    "Fiat": {
+        "fiat_mobi_10": { name: "Mobi 1.0", kml: 13.5 },
+        "fiat_argo_10": { name: "Argo 1.0", kml: 13.4 },
+        "fiat_strada_13": { name: "Strada 1.3 Flex", kml: 12.5 },
+        "fiat_toro_13t": { name: "Toro 1.3 Turbo Flex", kml: 9.8 },
+        "fiat_fastback_13t": { name: "Fastback 1.3 Turbo", kml: 11.3 },
+        "fiat_pulse_10t": { name: "Pulse 1.0 Turbo", kml: 12.2 },
+        "fiat_fiorino_14": { name: "Fiorino 1.4 EVO", kml: 11.8 }
+    },
+    "Chevrolet": {
+        "chevrolet_onix_10": { name: "Onix 1.0 Flex", kml: 13.3 },
+        "chevrolet_onix_plus": { name: "Onix Plus 1.0 Turbo", kml: 13.7 },
+        "chevrolet_tracker_12": { name: "Tracker 1.2 Turbo", kml: 11.2 },
+        "chevrolet_montana_12t": { name: "Montana 1.2 Turbo", kml: 12.0 },
+        "chevrolet_s10_28": { name: "S10 2.8 Diesel", kml: 10.3 }
+    },
+    "Yamaha": {
+        "yamaha_factor_150": { name: "Factor 150", kml: 40.0 },
+        "yamaha_fazer_250": { name: "Fazer 250", kml: 31.0 },
+        "yamaha_lander_250": { name: "Lander 250", kml: 30.0 }
+    },
+    "GWM": {
+        "gwm_ora_03": { name: "Ora 03 (Elétrico)", kml: 55.0 },
+        "gwm_haval_h6_hev": { name: "Haval H6 HEV (Híbrido)", kml: 16.5 },
+        "gwm_haval_h6_phev": { name: "Haval H6 PHEV (Híbrido)", kml: 28.0 }
+    },
+    "Renault": {
+        "renault_kwid_10": { name: "Kwid 1.0", kml: 15.3 },
+        "renault_kwid_e_tech": { name: "Kwid E-Tech (Elétrico)", kml: 62.0 },
+        "renault_master_23": { name: "Master 2.3 Diesel", kml: 10.0 }
+    },
+    "Hyundai": {
+        "hyundai_hb20_10": { name: "HB20 1.0", kml: 12.8 },
+        "hyundai_creta_10t": { name: "Creta 1.0 Turbo", kml: 11.5 },
+        "hyundai_hr_25": { name: "HR 2.5 Diesel", kml: 8.5 }
+    },
+    "Volvo": {
+        "volvo_ex30": { name: "EX30 (Elétrico)", kml: 48.0 },
+        "volvo_xc40_recharge": { name: "XC40 Recharge (Elétrico)", kml: 42.0 },
+        "volvo_xc60_phev": { name: "XC60 Recharge (Híbrido)", kml: 24.5 }
+    },
+    "Outras Marcas": {
+        "jeep_renegade_13t": { name: "Jeep Renegade 1.3 Turbo", kml: 11.0 },
+        "jeep_compass_13t": { name: "Jeep Compass 1.3 Turbo", kml: 10.5 },
+        "nissan_versa_16": { name: "Nissan Versa 1.6", kml: 12.4 },
+        "nissan_leaf": { name: "Nissan Leaf (Elétrico)", kml: 45.0 },
+        "peugeot_208_10": { name: "Peugeot 208 1.0", kml: 13.6 },
+        "citroen_c3_10": { name: "Citroën C3 1.0", kml: 13.2 },
+        "ram_rampage_20t": { name: "RAM Rampage 2.0 Turbo", kml: 9.7 },
+        "ford_ranger_30_v6": { name: "Ford Ranger 3.0 V6 Diesel", kml: 9.2 },
+        "mitsubishi_l200_24": { name: "Mitsubishi L200 Triton", kml: 9.8 },
+        "bmw_i4": { name: "BMW i4 (Elétrico)", kml: 44.0 },
+        "bmw_r1250_gs": { name: "BMW R 1250 GS", kml: 20.0 },
+        "tesla_model_3": { name: "Tesla Model 3 (Elétrico)", kml: 58.0 },
+        "voltz_ev1_eletrica": { name: "Voltz EV1 (Moto Elétrica)", kml: 60.0 },
+        "scania_r450": { name: "Scania R 450 Carreta", kml: 2.2 }
+    }
 };
 
 const STATE_FUEL_PRICES = {
@@ -42,7 +98,6 @@ const STATE_FUEL_PRICES = {
     RR: 6.45, AP: 6.20, DEFAULT: 5.95
 };
 
-// Carrega o histórico salvo no localStorage ao iniciar
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
 function parseFormattedNumber(val) {
@@ -57,7 +112,6 @@ function formatBR(val, decimals = 2) {
     return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-// Função matemática para calcular a distância em linha reta entre coordenadas geográficas com fator rodoviário
 function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -67,10 +121,9 @@ function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
         Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c) * 1.35; // Fator de correção rodoviária ajustado
+    return (R * c) * 1.25;
 }
 
-// Função online para buscar coordenadas geográficas pelo nome da cidade
 async function geocodeAddress(address) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
@@ -85,6 +138,7 @@ async function geocodeAddress(address) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const brandSelect = document.getElementById('brandSelect');
     const autoVehicleSelect = document.getElementById('autoVehicleSelect');
     const origemInput = document.getElementById('origemA');
     const destinoInput = document.getElementById('destinoB');
@@ -93,13 +147,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const regionPriceLabel = document.getElementById('regionPriceLabel');
     const btnCalculate = document.getElementById('btnCalculate');
     const btnClear = document.getElementById('btnClear');
+    const btnGps = document.getElementById('btnGps');
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
+
+    // Popular o primeiro select com as marcas disponíveis
+    function popularMarcas() {
+        brandSelect.innerHTML = '<option value="">Selecione a marca...</option>';
+        Object.keys(vehicleBrandsDatabase).forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand;
+            option.textContent = brand;
+            brandSelect.appendChild(option);
+        });
+    }
+
+    popularMarcas();
+
+    // Evento ao mudar a Marca: carrega os modelos correspondentes no segundo select
+    brandSelect.addEventListener('change', (e) => {
+        const selectedBrand = e.target.value;
+        autoVehicleSelect.innerHTML = '<option value="">Selecione o modelo...</option>';
+        
+        if (selectedBrand && vehicleBrandsDatabase[selectedBrand]) {
+            autoVehicleSelect.disabled = false;
+            const modelos = vehicleBrandsDatabase[selectedBrand];
+            Object.keys(modelos).forEach(modelKey => {
+                const option = document.createElement('option');
+                option.value = modelKey;
+                option.textContent = `${modelos[modelKey].name} (${modelos[modelKey].kml} km/L)`;
+                autoVehicleSelect.appendChild(option);
+            });
+        } else {
+            autoVehicleSelect.disabled = true;
+        }
+    });
+
+    // Evento ao mudar o Modelo: atualiza automaticamente o campo de consumo (Km/L)
+    autoVehicleSelect.addEventListener('change', (e) => {
+        const selectedBrand = brandSelect.value;
+        const selectedModelKey = e.target.value;
+        if (selectedBrand && selectedModelKey && vehicleBrandsDatabase[selectedBrand][selectedModelKey]) {
+            const kmlVal = vehicleBrandsDatabase[selectedBrand][selectedModelKey].kml;
+            document.getElementById('kml').value = formatBR(kmlVal, 1);
+        }
+    });
 
     function updateHistoryUI() {
         const historyList = document.getElementById('historyList');
         if (!historyList) return;
-        
+
         if (travelHistory.length === 0) {
             historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
             return;
@@ -122,21 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateHistoryUI();
 
-    function atualizarLinkGoogleMaps() {
-        const origemVal = origemInput.value.trim();
-        const destinoVal = destinoInput.value.trim();
-
-        if (origemVal && destinoVal) {
-            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
-        } else {
-            btnOpenGoogleMaps.href = 'https://www.google.com/maps';
-        }
-    }
-
-    origemInput.addEventListener('input', () => {
-        atualizarLinkGoogleMaps();
-        
-        const text = origemInput.value.toUpperCase();
+    origemInput.addEventListener('input', (e) => {
+        const text = e.target.value.toUpperCase();
         let foundUf = 'DEFAULT';
         Object.keys(STATE_FUEL_PRICES).forEach((uf) => {
             if (uf !== 'DEFAULT') {
@@ -149,20 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
         regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (${foundUf !== 'DEFAULT' ? 'Estado: ' + foundUf : 'Média Nacional'}): <b>R$ ${formatBR(price, 2)}</b>`;
     });
 
-    destinoInput.addEventListener('input', atualizarLinkGoogleMaps);
-
-    autoVehicleSelect.addEventListener('change', (e) => {
-        const selectedKey = e.target.value;
-        if (selectedKey && vehicleDatabase[selectedKey]) {
-            document.getElementById('kml').value = formatBR(vehicleDatabase[selectedKey], 1);
-        }
-    });
-
     btnCalculate.addEventListener('click', async () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
-        // Se houver origem e destino preenchidos, tenta calcular a distância online via geocodificação
         if (origemVal && destinoVal) {
             const coordsOrigem = await geocodeAddress(origemVal);
             const coordsDestino = await geocodeAddress(destinoVal);
@@ -171,9 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const calcKm = calcularDistanciaGeo(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
                 distanciaInput.value = formatBR(calcKm, 1);
             }
+
+            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
         }
 
-        const distanciaKm = parseFormattedNumber(distanciaInput.value);
         const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
         const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
         const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
@@ -181,13 +256,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const fixedCostMonthly = parseFormattedNumber(document.getElementById('fixedCostMonthly').value) || 0;
         const monthlyKmAvg = parseFormattedNumber(document.getElementById('monthlyKmAvg').value) || 1000;
         const passengers = Math.max(1, parseInt(document.getElementById('passengers').value) || 1);
+        const distanciaKm = parseFormattedNumber(distanciaInput.value) || 0;
         
         const vehicleName = autoVehicleSelect.selectedIndex > 0 
             ? autoVehicleSelect.options[autoVehicleSelect.selectedIndex].text.split('(')[0].trim() 
             : "Personalizado";
 
         if (distanciaKm <= 0) {
-            alert('Por favor, informe a distância da viagem em quilômetros ou preencha cidades válidas.');
+            alert('Por favor, informe a distância da viagem em quilômetros ou digite cidades válidas.');
             return;
         }
 
@@ -224,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
             custoPassageiro: costPerPassenger,
             custoTotal: totalCost
         };
-
         travelHistory.unshift(tripRecord);
         localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
@@ -241,7 +316,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('monthlyKmAvg').value = '1000';
         document.getElementById('passengers').value = '1';
         document.getElementById('kml').value = '12,5';
-        autoVehicleSelect.selectedIndex = 0;
+        brandSelect.selectedIndex = 0;
+        autoVehicleSelect.innerHTML = '<option value="">Primeiro selecione a marca...</option>';
+        autoVehicleSelect.disabled = true;
         document.getElementById('result').style.display = 'none';
         btnOpenGoogleMaps.href = 'https://www.google.com/maps';
         regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b>`;
@@ -266,4 +343,23 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
         document.body.removeChild(link);
     });
+
+    if (btnGps) {
+        btnGps.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                alert('O seu dispositivo não suporta geolocalização.');
+                return;
+            }
+            alert('Capturando coordenadas atuais via GPS...');
+            navigator.geolocation.getCurrentPosition((position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                origemInput.value = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
+                btnOpenGoogleMaps.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
+                alert('Coordenadas obtidas com sucesso!');
+            }, () => {
+                alert('Erro ao obter sinal do GPS.');
+            }, { enableHighAccuracy: true });
+        });
+    }
 });
