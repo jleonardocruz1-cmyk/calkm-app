@@ -113,20 +113,7 @@ function formatBR(val, decimals = 2) {
     return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-// Função matemática para calcular a distância em linha reta entre coordenadas geográficas com fator rodoviário
-function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c) * 1.35; // Fator de correção rodoviária ajustado
-}
-
-// Função online para buscar coordenadas geográficas pelo nome da cidade
+// 1. Função online para buscar coordenadas geográficas (Lat/Lon) pelo Nominatim
 async function geocodeAddress(address) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
@@ -138,6 +125,36 @@ async function geocodeAddress(address) {
         console.error("Erro na geocodificação:", e);
     }
     return null;
+}
+
+// 2. Consulta a rota rodoviária REAL pelas estradas via API OSRM (Gratuita e ultra precisa)
+async function obterDistanciaRodoviariaReal(lat1, lon1, lat2, lon2) {
+    try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${lon1},${lat1};${lon2},${lat2}?overview=false`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data && data.routes && data.routes.length > 0) {
+            // A API retorna a distância exata em metros -> converte para km
+            return data.routes[0].distance / 1000;
+        }
+    } catch (e) {
+        console.error("Erro ao obter rota rodoviária real via OSRM:", e);
+    }
+    return null;
+}
+
+// 3. Função de fallback em linha reta ajustada com multiplicador 1.22
+function calcularDistanciaGeoFallback(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c) * 1.22;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -254,13 +271,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
-        // Se houver origem e destino preenchidos, tenta calcular a distância online via geocodificação
+        // Se houver origem e destino preenchidos, calcula a distância rodoviária REAL via API OSRM
         if (origemVal && destinoVal) {
             const coordsOrigem = await geocodeAddress(origemVal);
             const coordsDestino = await geocodeAddress(destinoVal);
 
             if (coordsOrigem && coordsDestino) {
-                const calcKm = calcularDistanciaGeo(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                // Tenta consultar a malha rodoviária real primeiro
+                let calcKm = await obterDistanciaRodoviariaReal(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                
+                // Se a API OSRM por algum motivo não retornar, aplica o fallback otimizado
+                if (!calcKm) {
+                    calcKm = calcularDistanciaGeoFallback(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                }
+
                 distanciaInput.value = formatBR(calcKm, 1);
             }
         }
