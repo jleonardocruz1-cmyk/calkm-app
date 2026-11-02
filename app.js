@@ -1,4 +1,4 @@
-// Banco de veículos estruturado por marcas e modelos com seus consumos (Km/L ou eq.)
+// Banco de veículos estruturado por marcas e modelos com consumos atualizados (incluindo elétricos/híbridos)
 const vehicleBrandsDatabase = {
     "BYD": {
         "byd_dolphin_mini": { name: "Dolphin Mini (Elétrico)", kml: 65.0 },
@@ -98,6 +98,7 @@ const STATE_FUEL_PRICES = {
     RR: 6.45, AP: 6.20, DEFAULT: 5.95
 };
 
+// Carrega o histórico salvo no localStorage ao iniciar
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
 function parseFormattedNumber(val) {
@@ -112,6 +113,7 @@ function formatBR(val, decimals = 2) {
     return val.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
+// Função matemática para calcular a distância em linha reta entre coordenadas geográficas com fator rodoviário
 function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -121,9 +123,10 @@ function calcularDistanciaGeo(lat1, lon1, lat2, lon2) {
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
         Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c) * 1.25;
+    return (R * c) * 1.35; // Fator de correção rodoviária ajustado
 }
 
+// Função online para buscar coordenadas geográficas pelo nome da cidade
 async function geocodeAddress(address) {
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
@@ -147,7 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const regionPriceLabel = document.getElementById('regionPriceLabel');
     const btnCalculate = document.getElementById('btnCalculate');
     const btnClear = document.getElementById('btnClear');
-    const btnGps = document.getElementById('btnGps');
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
@@ -196,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateHistoryUI() {
         const historyList = document.getElementById('historyList');
         if (!historyList) return;
-
+        
         if (travelHistory.length === 0) {
             historyList.innerHTML = '<p style="color: #777;">Nenhuma viagem salva ainda.</p>';
             return;
@@ -219,8 +221,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateHistoryUI();
 
-    origemInput.addEventListener('input', (e) => {
-        const text = e.target.value.toUpperCase();
+    function atualizarLinkGoogleMaps() {
+        const origemVal = origemInput.value.trim();
+        const destinoVal = destinoInput.value.trim();
+
+        if (origemVal && destinoVal) {
+            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
+        } else {
+            btnOpenGoogleMaps.href = 'https://www.google.com/maps';
+        }
+    }
+
+    origemInput.addEventListener('input', () => {
+        atualizarLinkGoogleMaps();
+        
+        const text = origemInput.value.toUpperCase();
         let foundUf = 'DEFAULT';
         Object.keys(STATE_FUEL_PRICES).forEach((uf) => {
             if (uf !== 'DEFAULT') {
@@ -233,10 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
         regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (${foundUf !== 'DEFAULT' ? 'Estado: ' + foundUf : 'Média Nacional'}): <b>R$ ${formatBR(price, 2)}</b>`;
     });
 
+    destinoInput.addEventListener('input', atualizarLinkGoogleMaps);
+
     btnCalculate.addEventListener('click', async () => {
         const origemVal = origemInput.value.trim();
         const destinoVal = destinoInput.value.trim();
 
+        // Se houver origem e destino preenchidos, tenta calcular a distância online via geocodificação
         if (origemVal && destinoVal) {
             const coordsOrigem = await geocodeAddress(origemVal);
             const coordsDestino = await geocodeAddress(destinoVal);
@@ -245,10 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const calcKm = calcularDistanciaGeo(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
                 distanciaInput.value = formatBR(calcKm, 1);
             }
-
-            btnOpenGoogleMaps.href = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origemVal)}&destination=${encodeURIComponent(destinoVal)}&travelmode=driving`;
         }
 
+        const distanciaKm = parseFormattedNumber(distanciaInput.value);
         const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
         const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
         const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
@@ -256,14 +273,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const fixedCostMonthly = parseFormattedNumber(document.getElementById('fixedCostMonthly').value) || 0;
         const monthlyKmAvg = parseFormattedNumber(document.getElementById('monthlyKmAvg').value) || 1000;
         const passengers = Math.max(1, parseInt(document.getElementById('passengers').value) || 1);
-        const distanciaKm = parseFormattedNumber(distanciaInput.value) || 0;
         
         const vehicleName = autoVehicleSelect.selectedIndex > 0 
             ? autoVehicleSelect.options[autoVehicleSelect.selectedIndex].text.split('(')[0].trim() 
             : "Personalizado";
 
         if (distanciaKm <= 0) {
-            alert('Por favor, informe a distância da viagem em quilômetros ou digite cidades válidas.');
+            alert('Por favor, informe a distância da viagem em quilômetros ou preencha cidades válidas.');
             return;
         }
 
@@ -300,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
             custoPassageiro: costPerPassenger,
             custoTotal: totalCost
         };
+
         travelHistory.unshift(tripRecord);
         localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
         updateHistoryUI();
@@ -343,23 +360,4 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
         document.body.removeChild(link);
     });
-
-    if (btnGps) {
-        btnGps.addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                alert('O seu dispositivo não suporta geolocalização.');
-                return;
-            }
-            alert('Capturando coordenadas atuais via GPS...');
-            navigator.geolocation.getCurrentPosition((position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                origemInput.value = `Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)}`;
-                btnOpenGoogleMaps.href = `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
-                alert('Coordenadas obtidas com sucesso!');
-            }, () => {
-                alert('Erro ao obter sinal do GPS.');
-            }, { enableHighAccuracy: true });
-        });
-    }
 });
