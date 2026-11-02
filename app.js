@@ -1,4 +1,4 @@
-// Banco de veículos estruturado por marcas e modelos com consumos atualizados (incluindo elétricos/híbridos)
+// Banco de veículos estruturado por marcas e modelos com consumos atualizados (incluindo elétricos, híbridos e Peugeot)
 const vehicleBrandsDatabase = {
     "BYD": {
         "byd_dolphin_mini": { name: "Dolphin Mini (Elétrico)", kml: 65.0 },
@@ -8,12 +8,25 @@ const vehicleBrandsDatabase = {
         "byd_song_plus_phev": { name: "Song Plus DM-i (Híbrido)", kml: 21.5 },
         "byd_yuan_plus": { name: "Yuan Plus", kml: 52.0 }
     },
+    "Caoa Chery": {
+        "chery_tiggo_5x": { name: "Tiggo 5X PRO", kml: 11.8 },
+        "chery_tiggo_7": { name: "Tiggo 7 PRO Max Drive", kml: 11.1 },
+        "chery_tiggo_8": { name: "Tiggo 8 Híbrido", kml: 26.5 },
+        "chery_i_car": { name: "iCar (Elétrico)", kml: 58.0 }
+    },
     "Chevrolet": {
         "chevrolet_montana_12t": { name: "Montana 1.2 Turbo", kml: 12.0 },
         "chevrolet_onix_10": { name: "Onix 1.0 Flex", kml: 13.3 },
         "chevrolet_onix_plus": { name: "Onix Plus 1.0 Turbo", kml: 13.7 },
         "chevrolet_s10_28": { name: "S10 2.8 Diesel", kml: 10.3 },
-        "chevrolet_tracker_12": { name: "Tracker 1.2 Turbo", kml: 11.2 }
+        "chevrolet_tracker_12": { name: "Tracker 1.2 Turbo", kml: 11.2 },
+        "chevrolet_blazer_ev": { name: "Blazer EV (Elétrico)", kml: 45.0 }
+    },
+    "Citroën": {
+        "citroen_c3_10": { name: "C3 1.0 Flex", kml: 13.2 },
+        "citroen_c3_aircross": { name: "C3 Aircross 7 lugares", kml: 11.5 },
+        "citroen_basalt": { name: "Basalt Turbo 200", kml: 12.0 },
+        "citroen_e_c3": { name: "ë-C3 (Elétrico)", kml: 55.0 }
     },
     "Fiat": {
         "fiat_argo_10": { name: "Argo 1.0", kml: 13.4 },
@@ -22,7 +35,14 @@ const vehicleBrandsDatabase = {
         "fiat_mobi_10": { name: "Mobi 1.0", kml: 13.5 },
         "fiat_pulse_10t": { name: "Pulse 1.0 Turbo", kml: 12.2 },
         "fiat_strada_13": { name: "Strada 1.3 Flex", kml: 12.5 },
-        "fiat_toro_13t": { name: "Toro 1.3 Turbo Flex", kml: 9.8 }
+        "fiat_toro_13t": { name: "Toro 1.3 Turbo Flex", kml: 9.8 },
+        "fiat_titano": { name: "Titano 2.2 Diesel", kml: 9.6 }
+    },
+    "Ford": {
+        "ford_ranger_30_v6": { name: "Ranger 3.0 V6 Diesel", kml: 9.2 },
+        "ford_maverick_hybrid": { name: "Maverick Híbrida", kml: 15.8 },
+        "ford_territory": { name: "Territory 1.5 Turbo", kml: 10.5 },
+        "ford_mustang_mach_e": { name: "Mustang Mach-E (Elétrico)", kml: 40.0 }
     },
     "GWM": {
         "gwm_haval_h6_hev": { name: "Haval H6 HEV (Híbrido)", kml: 16.5 },
@@ -35,36 +55,69 @@ const vehicleBrandsDatabase = {
         "honda_cg_160": { name: "CG 160 Titan / Fan", kml: 38.0 },
         "honda_hrv_15": { name: "HR-V 1.5", kml: 12.7 },
         "honda_pop_110": { name: "Pop 110i", kml: 55.0 },
-        "honda_xre_300": { name: "XRE 300", kml: 28.0 }
+        "honda_xre_300": { name: "XRE 300", kml: 28.0 },
+        "honda_city": { name: "New City Sedan", kml: 13.1 },
+        "honda_civic_hybrid": { name: "Civic e:HEV (Híbrido)", kml: 22.0 }
     },
     "Hyundai": {
         "hyundai_creta_10t": { name: "Creta 1.0 Turbo", kml: 11.5 },
         "hyundai_hb20_10": { name: "HB20 1.0", kml: 12.8 },
-        "hyundai_hr_25": { name: "HR 2.5 Diesel", kml: 8.5 }
+        "hyundai_hb20s": { name: "HB20S Sedan", kml: 13.0 },
+        "hyundai_hr_25": { name: "HR 2.5 Diesel", kml: 8.5 },
+        "hyundai_tucson": { name: "Tucson Turbo", kml: 10.8 },
+        "hyundai_kona_ev": { name: "Kona Electric", kml: 58.0 }
+    },
+    "Jeep": {
+        "jeep_renegade_13t": { name: "Renegade 1.3 Turbo", kml: 11.0 },
+        "jeep_compass_13t": { name: "Compass 1.3 Turbo", kml: 10.5 },
+        "jeep_compass_4xe": { name: "Compass 4xe (PHEV)", kml: 25.0 },
+        "jeep_commander": { name: "Commander 1.3 Turbo", kml: 9.8 }
+    },
+    "Nissan": {
+        "nissan_kicks": { name: "Kicks 1.6 Flex", kml: 12.4 },
+        "nissan_versa_16": { name: "Versa 1.6", kml: 12.4 },
+        "nissan_sentra": { name: "Sentra 2.0 Exclusive", kml: 13.9 },
+        "nissan_leaf": { name: "Leaf (Elétrico)", kml: 45.0 }
+    },
+    "Peugeot": {
+        "peugeot_208_10": { name: "208 1.0 Flex", kml: 13.6 },
+        "peugeot_208_turbo": { name: "208 Turbo 200 (CVT)", kml: 12.3 },
+        "peugeot_2008": { name: "Novo 2008 Turbo", kml: 11.5 },
+        "peugeot_e_208": { name: "e-208 (Elétrico)", kml: 56.0 },
+        "peugeot_expert": { name: "Expert 1.5 Diesel", kml: 12.5 }
     },
     "Renault": {
         "renault_kwid_10": { name: "Kwid 1.0", kml: 15.3 },
         "renault_kwid_e_tech": { name: "Kwid E-Tech (Elétrico)", kml: 62.0 },
-        "renault_master_23": { name: "Master 2.3 Diesel", kml: 10.0 }
+        "renault_master_23": { name: "Master 2.3 Diesel", kml: 10.0 },
+        "renault_duster": { name: "Duster 1.3 Turbo", kml: 11.5 },
+        "renault_cardian": { name: "Cardian 1.0 Turbo", kml: 13.4 },
+        "renault_megane_e_tech": { name: "Megane E-Tech (Elétrico)", kml: 50.0 }
     },
     "Toyota": {
         "toyota_corolla_20": { name: "Corolla 2.0 Dynamic", kml: 11.9 },
         "toyota_corolla_cross_hybrid": { name: "Corolla Cross Híbrido", kml: 17.8 },
         "toyota_corolla_hybrid": { name: "Corolla Híbrido", kml: 17.9 },
         "toyota_hilux_28": { name: "Hilux 2.8 Diesel", kml: 10.1 },
-        "toyota_yaris_13": { name: "Yaris 1.3", kml: 13.0 }
+        "toyota_yaris_13": { name: "Yaris 1.3", kml: 13.0 },
+        "toyota_sw4": { name: "SW4 2.8 Diesel", kml: 10.0 },
+        "toyota_rav4_hybrid": { name: "RAV4 Híbrido", kml: 14.3 }
     },
     "Volkswagen": {
         "volkswagen_nivus_10t": { name: "Nivus 1.0 TSI", kml: 12.1 },
         "volkswagen_polo_10": { name: "Polo 1.0", kml: 13.8 },
+        "volkswagen_polo_track": { name: "Polo Track 1.0", kml: 14.0 },
         "volkswagen_t_cross_10t": { name: "T-Cross 1.0 TSI", kml: 12.0 },
         "volkswagen_virtus_10t": { name: "Virtus 1.0 TSI", kml: 13.2 },
+        "volkswagen_taos": { name: "Taos 1.4 TSI", kml: 11.2 },
+        "volkswagen_saveiro": { name: "Saveiro 1.6 Robust", kml: 11.8 },
         "vw_delivery_3150": { name: "Delivery Express 3.150", kml: 7.5 }
     },
     "Volvo": {
         "volvo_ex30": { name: "EX30 (Elétrico)", kml: 48.0 },
         "volvo_xc40_recharge": { name: "XC40 Recharge (Elétrico)", kml: 42.0 },
-        "volvo_xc60_phev": { name: "XC60 Recharge (Híbrido)", kml: 24.5 }
+        "volvo_xc60_phev": { name: "XC60 Recharge (Híbrido)", kml: 24.5 },
+        "volvo_ex90": { name: "EX90 (Elétrico)", kml: 38.0 }
     },
     "Yamaha": {
         "yamaha_factor_150": { name: "Factor 150", kml: 40.0 },
@@ -74,14 +127,7 @@ const vehicleBrandsDatabase = {
     "Outras Marcas": {
         "bmw_i4": { name: "BMW i4 (Elétrico)", kml: 44.0 },
         "bmw_r1250_gs": { name: "BMW R 1250 GS", kml: 20.0 },
-        "citroen_c3_10": { name: "Citroën C3 1.0", kml: 13.2 },
-        "ford_ranger_30_v6": { name: "Ford Ranger 3.0 V6 Diesel", kml: 9.2 },
-        "jeep_compass_13t": { name: "Jeep Compass 1.3 Turbo", kml: 10.5 },
-        "jeep_renegade_13t": { name: "Jeep Renegade 1.3 Turbo", kml: 11.0 },
         "mitsubishi_l200_24": { name: "Mitsubishi L200 Triton", kml: 9.8 },
-        "nissan_leaf": { name: "Nissan Leaf (Elétrico)", kml: 45.0 },
-        "nissan_versa_16": { name: "Nissan Versa 1.6", kml: 12.4 },
-        "peugeot_208_10": { name: "Peugeot 208 1.0", kml: 13.6 },
         "ram_rampage_20t": { name: "RAM Rampage 2.0 Turbo", kml: 9.7 },
         "scania_r450": { name: "Scania R 450 Carreta", kml: 2.2 },
         "tesla_model_3": { name: "Tesla Model 3 (Elétrico)", kml: 58.0 },
@@ -90,15 +136,9 @@ const vehicleBrandsDatabase = {
 };
 
 const STATE_FUEL_PRICES = {
-    SP: 5.82, RJ: 6.15, MG: 5.89, PA: 6.25, BA: 5.99,
-    RS: 6.05, PR: 5.75, SC: 5.80, DF: 5.90, GO: 5.85,
-    PE: 6.10, CE: 6.02, AM: 6.30, MA: 6.18, MT: 6.12,
-    MS: 5.95, ES: 5.98, RN: 6.08, PB: 6.04, AL: 6.12,
-    SE: 6.09, PI: 6.15, TO: 6.10, RO: 6.35, AC: 6.50,
-    RR: 6.45, AP: 6.20, DEFAULT: 5.95
+    DEFAULT: 5.95
 };
 
-// Carrega o histórico salvo no localStorage ao iniciar
 let travelHistory = JSON.parse(localStorage.getItem('calkm_travel_history')) || [];
 
 function parseFormattedNumber(val) {
@@ -163,14 +203,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const destinoInput = document.getElementById('destinoB');
     const distanciaInput = document.getElementById('distanciaKm');
     const fuelPriceInput = document.getElementById('fuelPrice');
-    const regionPriceLabel = document.getElementById('regionPriceLabel');
     const btnCalculate = document.getElementById('btnCalculate');
     const btnClear = document.getElementById('btnClear');
     const btnExportCsv = document.getElementById('btnExportCsv');
     const btnOpenGoogleMaps = document.getElementById('btnOpenGoogleMaps');
 
-    // Popular o primeiro select com as marcas em ordem alfabética
+    // Popular o primeiro select com as marcas estritamente em ordem alfabética
     function popularMarcas() {
+        if (!brandSelect) return;
         brandSelect.innerHTML = '<option value="">Selecione a marca...</option>';
         const marcasOrdenadas = Object.keys(vehicleBrandsDatabase).sort((a, b) => a.localeCompare(b, 'pt-BR'));
         
@@ -184,40 +224,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     popularMarcas();
 
-    // Evento ao mudar a Marca: carrega os modelos correspondentes em ordem alfabética no segundo select
-    brandSelect.addEventListener('change', (e) => {
-        const selectedBrand = e.target.value;
-        autoVehicleSelect.innerHTML = '<option value="">Selecione o modelo...</option>';
-        
-        if (selectedBrand && vehicleBrandsDatabase[selectedBrand]) {
-            autoVehicleSelect.disabled = false;
-            const modelosObj = vehicleBrandsDatabase[selectedBrand];
+    // Evento ao mudar a Marca: carrega os modelos em ordem alfabética
+    if (brandSelect) {
+        brandSelect.addEventListener('change', (e) => {
+            const selectedBrand = e.target.value;
+            autoVehicleSelect.innerHTML = '<option value="">Selecione o modelo...</option>';
             
-            // Ordenar os modelos alfabeticamente pelo nome
-            const chavesModelosOrdenadas = Object.keys(modelosObj).sort((a, b) => {
-                return modelosObj[a].name.localeCompare(modelosObj[b].name, 'pt-BR');
-            });
+            if (selectedBrand && vehicleBrandsDatabase[selectedBrand]) {
+                autoVehicleSelect.disabled = false;
+                const modelosObj = vehicleBrandsDatabase[selectedBrand];
+                
+                const chavesModelosOrdenadas = Object.keys(modelosObj).sort((a, b) => {
+                    return modelosObj[a].name.localeCompare(modelosObj[b].name, 'pt-BR');
+                });
 
-            chavesModelosOrdenadas.forEach(modelKey => {
-                const option = document.createElement('option');
-                option.value = modelKey;
-                option.textContent = `${modelosObj[modelKey].name} (${modelosObj[modelKey].kml} km/L)`;
-                autoVehicleSelect.appendChild(option);
-            });
-        } else {
-            autoVehicleSelect.disabled = true;
-        }
-    });
+                chavesModelosOrdenadas.forEach(modelKey => {
+                    const option = document.createElement('option');
+                    option.value = modelKey;
+                    option.textContent = `${modelosObj[modelKey].name} (${modelosObj[modelKey].kml} km/L)`;
+                    autoVehicleSelect.appendChild(option);
+                });
+            } else {
+                autoVehicleSelect.disabled = true;
+            }
+        });
+    }
 
-    // Evento ao mudar o Modelo: atualiza automaticamente o campo de consumo (Km/L)
-    autoVehicleSelect.addEventListener('change', (e) => {
-        const selectedBrand = brandSelect.value;
-        const selectedModelKey = e.target.value;
-        if (selectedBrand && selectedModelKey && vehicleBrandsDatabase[selectedBrand][selectedModelKey]) {
-            const kmlVal = vehicleBrandsDatabase[selectedBrand][selectedModelKey].kml;
-            document.getElementById('kml').value = formatBR(kmlVal, 1);
-        }
-    });
+    if (autoVehicleSelect) {
+        autoVehicleSelect.addEventListener('change', (e) => {
+            const selectedBrand = brandSelect.value;
+            const selectedModelKey = e.target.value;
+            if (selectedBrand && selectedModelKey && vehicleBrandsDatabase[selectedBrand][selectedModelKey]) {
+                const kmlVal = vehicleBrandsDatabase[selectedBrand][selectedModelKey].kml;
+                document.getElementById('kml').value = formatBR(kmlVal, 1);
+            }
+        });
+    }
 
     function updateHistoryUI() {
         const historyList = document.getElementById('historyList');
@@ -256,136 +298,126 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    origemInput.addEventListener('input', () => {
-        atualizarLinkGoogleMaps();
-        
-        const text = origemInput.value.toUpperCase();
-        let foundUf = 'DEFAULT';
-        Object.keys(STATE_FUEL_PRICES).forEach((uf) => {
-            if (uf !== 'DEFAULT') {
-                const regex = new RegExp(`\\b${uf}\\b`, 'i');
-                if (regex.test(text)) foundUf = uf;
-            }
-        });
-        const price = STATE_FUEL_PRICES[foundUf];
-        fuelPriceInput.value = formatBR(price, 2);
-        regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (${foundUf !== 'DEFAULT' ? 'Estado: ' + foundUf : 'Média Nacional'}): <b>R$ ${formatBR(price, 2)}</b>`;
-    });
+    if (origemInput) origemInput.addEventListener('input', atualizarLinkGoogleMaps);
+    if (destinoInput) destinoInput.addEventListener('input', atualizarLinkGoogleMaps);
 
-    destinoInput.addEventListener('input', atualizarLinkGoogleMaps);
+    if (btnCalculate) {
+        btnCalculate.addEventListener('click', async () => {
+            const origemVal = origemInput.value.trim();
+            const destinoVal = destinoInput.value.trim();
 
-    btnCalculate.addEventListener('click', async () => {
-        const origemVal = origemInput.value.trim();
-        const destinoVal = destinoInput.value.trim();
+            if (origemVal && destinoVal) {
+                const coordsOrigem = await geocodeAddress(origemVal);
+                const coordsDestino = await geocodeAddress(destinoVal);
 
-        if (origemVal && destinoVal) {
-            const coordsOrigem = await geocodeAddress(origemVal);
-            const coordsDestino = await geocodeAddress(destinoVal);
+                if (coordsOrigem && coordsDestino) {
+                    let calcKm = await obterDistanciaRodoviariaReal(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                    
+                    if (!calcKm) {
+                        calcKm = calcularDistanciaGeoFallback(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                    }
 
-            if (coordsOrigem && coordsDestino) {
-                let calcKm = await obterDistanciaRodoviariaReal(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
-                
-                if (!calcKm) {
-                    calcKm = calcularDistanciaGeoFallback(coordsOrigem.lat, coordsOrigem.lon, coordsDestino.lat, coordsDestino.lon);
+                    distanciaInput.value = formatBR(calcKm, 1);
                 }
-
-                distanciaInput.value = formatBR(calcKm, 1);
             }
-        }
 
-        const distanciaKm = parseFormattedNumber(distanciaInput.value);
-        const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
-        const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
-        const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
-        const tolls = parseFormattedNumber(document.getElementById('tolls').value) || 0;
-        const fixedCostMonthly = parseFormattedNumber(document.getElementById('fixedCostMonthly').value) || 0;
-        const monthlyKmAvg = parseFormattedNumber(document.getElementById('monthlyKmAvg').value) || 1000;
-        const passengers = Math.max(1, parseInt(document.getElementById('passengers').value) || 1);
-        
-        const vehicleName = autoVehicleSelect.selectedIndex > 0 
-            ? autoVehicleSelect.options[autoVehicleSelect.selectedIndex].text.split('(')[0].trim() 
-            : "Personalizado";
+            const distanciaKm = parseFormattedNumber(distanciaInput.value);
+            const kml = parseFormattedNumber(document.getElementById('kml').value) || 1;
+            const fuelPrice = parseFormattedNumber(fuelPriceInput.value) || 0;
+            const maintenancePerKm = parseFormattedNumber(document.getElementById('maintenancePerKm').value) || 0;
+            const tolls = parseFormattedNumber(document.getElementById('tolls').value) || 0;
+            const fixedCostMonthly = parseFormattedNumber(document.getElementById('fixedCostMonthly').value) || 0;
+            const monthlyKmAvg = parseFormattedNumber(document.getElementById('monthlyKmAvg').value) || 1000;
+            const passengers = Math.max(1, parseInt(document.getElementById('passengers').value) || 1);
+            
+            const vehicleName = autoVehicleSelect.selectedIndex > 0 
+                ? autoVehicleSelect.options[autoVehicleSelect.selectedIndex].text.split('(')[0].trim() 
+                : "Personalizado";
 
-        if (distanciaKm <= 0) {
-            alert('Por favor, informe a distância da viagem em quilômetros ou preencha cidades válidas.');
-            return;
-        }
+            if (distanciaKm <= 0) {
+                alert('Por favor, informe a distância da viagem em quilômetros ou preencha cidades válidas.');
+                return;
+            }
 
-        const fuelCost = (distanciaKm / kml) * fuelPrice;
-        const fixedCostPerKm = monthlyKmAvg > 0 ? fixedCostMonthly / monthlyKmAvg : 0;
-        const tripFixedCost = distanciaKm * fixedCostPerKm;
-        const totalMaintenanceCost = distanciaKm * maintenancePerKm;
-        
-        const totalCost = fuelCost + totalMaintenanceCost + tolls + tripFixedCost;
-        const costPerKm = totalCost / distanciaKm;
-        const costPerPassenger = totalCost / passengers;
+            const fuelCost = (distanciaKm / kml) * fuelPrice;
+            const fixedCostPerKm = monthlyKmAvg > 0 ? fixedCostMonthly / monthlyKmAvg : 0;
+            const tripFixedCost = distanciaKm * fixedCostPerKm;
+            const totalMaintenanceCost = distanciaKm * maintenancePerKm;
+            
+            const totalCost = fuelCost + totalMaintenanceCost + tolls + tripFixedCost;
+            const costPerKm = totalCost / distanciaKm;
+            const costPerPassenger = totalCost / passengers;
 
-        document.getElementById('resRouteDist').innerText = `${formatBR(distanciaKm, 1)} km`;
-        document.getElementById('resFuelCost').innerText = `R$ ${formatBR(fuelCost, 2)}`;
-        document.getElementById('resFixedCost').innerText = `R$ ${formatBR(tripFixedCost, 2)}`;
-        document.getElementById('resCostPerKm').innerText = `R$ ${formatBR(costPerKm, 2)}`;
-        document.getElementById('resCostPerPassenger').innerText = `R$ ${formatBR(costPerPassenger, 2)}`;
-        document.getElementById('resTotalCost').innerText = `R$ ${formatBR(totalCost, 2)}`;
-        document.getElementById('result').style.display = 'block';
+            document.getElementById('resRouteDist').innerText = `${formatBR(distanciaKm, 1)} km`;
+            document.getElementById('resFuelCost').innerText = `R$ ${formatBR(fuelCost, 2)}`;
+            document.getElementById('resFixedCost').innerText = `R$ ${formatBR(tripFixedCost, 2)}`;
+            document.getElementById('resCostPerKm').innerText = `R$ ${formatBR(costPerKm, 2)}`;
+            document.getElementById('resCostPerPassenger').innerText = `R$ ${formatBR(costPerPassenger, 2)}`;
+            document.getElementById('resTotalCost').innerText = `R$ ${formatBR(totalCost, 2)}`;
+            document.getElementById('result').style.display = 'block';
 
-        const tripRecord = {
-            data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}),
-            veiculo: vehicleName,
-            origem: origemVal || "Não informada",
-            destino: destinoVal || "Não informado",
-            distancia: distanciaKm,
-            kml,
-            precoLitro: fuelPrice,
-            manutencaoKm: maintenancePerKm,
-            pedagios: tolls,
-            custoFixo: tripFixedCost,
-            passageiros: passengers,
-            custoKm: costPerKm,
-            custoPassageiro: costPerPassenger,
-            custoTotal: totalCost
-        };
+            const tripRecord = {
+                data: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}),
+                veiculo: vehicleName,
+                origem: origemVal || "Não informada",
+                destino: destinoVal || "Não informado",
+                distancia: distanciaKm,
+                kml,
+                precoLitro: fuelPrice,
+                manutencaoKm: maintenancePerKm,
+                pedagios: tolls,
+                custoFixo: tripFixedCost,
+                passageiros: passengers,
+                custoKm: costPerKm,
+                custoPassageiro: costPerPassenger,
+                custoTotal: totalCost
+            };
 
-        travelHistory.unshift(tripRecord);
-        localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
-        updateHistoryUI();
-    });
-
-    btnClear.addEventListener('click', () => {
-        origemInput.value = '';
-        destinoInput.value = '';
-        distanciaInput.value = '';
-        document.getElementById('fuelPrice').value = '5,95';
-        document.getElementById('maintenancePerKm').value = '0,20';
-        document.getElementById('tolls').value = '0,00';
-        document.getElementById('fixedCostMonthly').value = '0,00';
-        document.getElementById('monthlyKmAvg').value = '1000';
-        document.getElementById('passengers').value = '1';
-        document.getElementById('kml').value = '12,5';
-        brandSelect.selectedIndex = 0;
-        autoVehicleSelect.innerHTML = '<option value="">Primeiro selecione a marca...</option>';
-        autoVehicleSelect.disabled = true;
-        document.getElementById('result').style.display = 'none';
-        btnOpenGoogleMaps.href = 'https://www.google.com/maps';
-        regionPriceLabel.innerHTML = `📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b>`;
-    });
-
-    btnExportCsv.addEventListener('click', () => {
-        if (travelHistory.length === 0) {
-            alert('Não há viagens no histórico para exportar.');
-            return;
-        }
-
-        let csvContent = "data:text/csv;charset=utf-8,Data;Veiculo;Origem;Destino;Distancia_Km;Consumo_KmL;Preco_Litro_R$;Manutencao_Km_R$;Pedagios_R$;Custo_Fixo_R$;Passageiros;Custo_Por_Km_R$;Custo_Por_Passageiro_R$;Custo_Total_R$\n";
-        travelHistory.forEach(trip => {
-            csvContent += `${trip.data};"${trip.veiculo}";"${trip.origem}";"${trip.destino}";${trip.distancia.toFixed(2)};${trip.kml.toFixed(1)};${trip.precoLitro.toFixed(2)};${trip.manutencaoKm.toFixed(2)};${trip.pedagios.toFixed(2)};${trip.custoFixo.toFixed(2)};${trip.passageiros};${trip.custoKm.toFixed(2)};${trip.custoPassageiro.toFixed(2)};${trip.custoTotal.toFixed(2)}\n`;
+            travelHistory.unshift(tripRecord);
+            localStorage.setItem('calkm_travel_history', JSON.stringify(travelHistory));
+            updateHistoryUI();
         });
+    }
 
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "historico_calkm_completo.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
+    if (btnClear) {
+        btnClear.addEventListener('click', () => {
+            origemInput.value = '';
+            destinoInput.value = '';
+            distanciaInput.value = '';
+            document.getElementById('fuelPrice').value = '5,95';
+            document.getElementById('maintenancePerKm').value = '0,20';
+            document.getElementById('tolls').value = '0,00';
+            document.getElementById('fixedCostMonthly').value = '0,00';
+            document.getElementById('monthlyKmAvg').value = '1000';
+            document.getElementById('passengers').value = '1';
+            document.getElementById('kml').value = '12,5';
+            brandSelect.selectedIndex = 0;
+            autoVehicleSelect.innerHTML = '<option value="">Primeiro selecione a marca...</option>';
+            autoVehicleSelect.disabled = true;
+            document.getElementById('result').style.display = 'none';
+            btnOpenGoogleMaps.href = 'https://www.google.com/maps';
+        });
+    }
+
+    if (btnExportCsv) {
+        btnExportCsv.addEventListener('click', () => {
+            if (travelHistory.length === 0) {
+                alert('Não há viagens no histórico para exportar.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,Data;Veiculo;Origem;Destino;Distancia_Km;Consumo_KmL;Preco_Litro_R$;Manutencao_Km_R$;Pedagios_R$;Custo_Fixo_R$;Passageiros;Custo_Por_Km_R$;Custo_Por_Passageiro_R$;Custo_Total_R$\n";
+            travelHistory.forEach(trip => {
+                csvContent += `${trip.data};"${trip.veiculo}";"${trip.origem}";"${trip.destino}";${trip.distancia.toFixed(2)};${trip.kml.toFixed(1)};${trip.precoLitro.toFixed(2)};${trip.manutencaoKm.toFixed(2)};${trip.pedagios.toFixed(2)};${trip.custoFixo.toFixed(2)};${trip.passageiros};${trip.custoKm.toFixed(2)};${trip.custoPassageiro.toFixed(2)};${trip.custoTotal.toFixed(2)}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "historico_calkm_completo.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    }
 });
