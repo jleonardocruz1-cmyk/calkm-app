@@ -21,60 +21,30 @@
             <span id="regionPriceLabel">📍 Preço Combustível por Região (Média Nacional): <b>R$ 5,95</b></span>
         </div>
 
-        <!-- Card de Veículo Selecionado -->
+        <!-- Card de Veículo Selecionado com Selects Encadeados -->
         <div class="card vehicle-card">
             <div class="vehicle-header">
-                <span class="vehicle-title">🚙 Veículo Selecionado (Inmetro)</span>
+                <span class="vehicle-title">🚙 Seleção de Veículo (Inmetro)</span>
             </div>
             
             <!-- Aviso caso o veículo não esteja na lista -->
             <p style="font-size: 13px; color: #475569; background-color: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #0d47a1;">
-                💡 <b>Dica:</b> Caso o seu veículo não esteja na lista, basta preencher diretamente a média do seu modelo no campo <b>Consumo (Km/L)</b> em <i>Valores da Viagem</i>.
+                💡 <b>Dica:</b> Escolha primeiro a marca e depois o modelo específico. Ou preencha diretamente o campo <b>Consumo (Km/L)</b> em <i>Valores da Viagem</i>.
             </p>
 
-            <div class="vehicle-options-box">
-                <select id="autoVehicleSelect" class="vehicle-select-native">
-                    <option value="">Selecione um modelo...</option>
-                    <optgroup label="🛵 Motocicletas">
-                        <option value="honda_pop_110">Honda Pop 110i (55.0 km/L)</option>
-                        <option value="honda_biz_125">Honda Biz 125 (50.0 km/L)</option>
-                        <option value="honda_cg_160">Honda CG 160 Titan / Fan (38.0 km/L)</option>
-                        <option value="yamaha_factor_150">Yamaha Factor 150 (40.0 km/L)</option>
-                        <option value="yamaha_fazer_250">Yamaha Fazer 250 (31.0 km/L)</option>
-                        <option value="honda_cb_300f">Honda CB 300F Twister (30.0 km/L)</option>
-                        <option value="honda_xre_300">Honda XRE 300 (28.0 km/L)</option>
-                        <option value="yamaha_lander_250">Yamaha Lander 250 (30.0 km/L)</option>
-                    </optgroup>
-                    <optgroup label="🚗 Carros Hatch & Populares">
-                        <option value="renault_kwid_10">Renault Kwid 1.0 (15.3 km/L)</option>
-                        <option value="fiat_mobi_10">Fiat Mobi 1.0 (13.5 km/L)</option>
-                        <option value="fiat_argo_10">Fiat Argo 1.0 (13.4 km/L)</option>
-                        <option value="chevrolet_onix_10">Chevrolet Onix 1.0 Flex (13.3 km/L)</option>
-                        <option value="hyundai_hb20_10">Hyundai HB20 1.0 (12.8 km/L)</option>
-                        <option value="volkswagen_polo_10">VW Polo 1.0 (13.8 km/L)</option>
-                        <option value="toyota_yaris_13">Toyota Yaris 1.3 (13.0 km/L)</option>
-                    </optgroup>
-                    <optgroup label="🚙 Sedãs & SUVs">
-                        <option value="chevrolet_onix_plus">Chevrolet Onix Plus 1.0 Turbo (13.7 km/L)</option>
-                        <option value="volkswagen_virtus_10t">VW Virtus 1.0 TSI (13.2 km/L)</option>
-                        <option value="toyota_corolla_20">Toyota Corolla 2.0 Dynamic (11.9 km/L)</option>
-                        <option value="toyota_corolla_hybrid">Toyota Corolla Híbrido (17.9 km/L)</option>
-                        <option value="chevrolet_tracker_12">Chevrolet Tracker 1.2 Turbo (11.2 km/L)</option>
-                        <option value="hyundai_creta_10t">Hyundai Creta 1.0 Turbo (11.5 km/L)</option>
-                        <option value="jeep_renegade_13t">Jeep Renegade 1.3 Turbo (11.0 km/L)</option>
-                        <option value="volkswagen_nivus_10t">VW Nivus 1.0 TSI (12.1 km/L)</option>
-                    </optgroup>
-                    <optgroup label="🚚 Utilitários, Picapes & Caminhões">
-                        <option value="fiat_strada_13">Fiat Strada 1.3 Flex (12.5 km/L)</option>
-                        <option value="fiat_toro_13t">Fiat Toro 1.3 Turbo Flex (9.8 km/L)</option>
-                        <option value="toyota_hilux_28">Toyota Hilux 2.8 Diesel (10.1 km/L)</option>
-                        <option value="chevrolet_s10_28">Chevrolet S10 2.8 Diesel (10.3 km/L)</option>
-                        <option value="fiat_fiorino_14">Fiat Fiorino 1.4 EVO (11.8 km/L)</option>
-                        <option value="renault_master_23">Renault Master 2.3 Diesel (10.0 km/L)</option>
-                        <option value="hyundai_hr_25">Hyundai HR 2.5 Diesel (8.5 km/L)</option>
-                        <option value="vw_delivery_3150">VW Delivery Express 3.150 (7.5 km/L)</option>
-                        <option value="scania_r450">Scania R 450 Carreta (2.2 km/L)</option>
-                    </optgroup>
+            <!-- 1ª Caixa de Combinação: Marca -->
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label>1️⃣ Digite ou selecione a marca do veículo:</label>
+                <select id="brandSelect" class="vehicle-select-native">
+                    <option value="">Selecione a marca...</option>
+                </select>
+            </div>
+
+            <!-- 2ª Caixa de Combinação: Modelo -->
+            <div class="input-group">
+                <label>2️⃣ Digite ou selecione o modelo do veículo:</label>
+                <select id="autoVehicleSelect" class="vehicle-select-native" disabled>
+                    <option value="">Primeiro selecione a marca...</option>
                 </select>
             </div>
         </div>
@@ -110,7 +80,7 @@
             <div class="grid-values">
                 <div class="input-group">
                     <label>Distância (km) [Calculada ou Manual]</label>
-                    <input type="text" id="distanciaKm" value="0,0" placeholder="Ex: 2150,0" inputmode="decimal" pattern="[0-9]*">
+                    <input type="text" id="distanciaKm" value="" placeholder="Ex: 2150,0" inputmode="decimal" pattern="[0-9]*">
                 </div>
                 <div class="input-group">
                     <label>Preço Litro (R$)</label>
@@ -174,5 +144,5 @@
     </div>
     
     <script src="app.js"></script>
-    </body>
+</body>
 </html>
